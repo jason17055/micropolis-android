@@ -1,5 +1,7 @@
 package micropolis.android;
 
+import micropolisj.engine.*;
+
 import android.content.Context;
 import android.graphics.*;
 import android.graphics.drawable.*;
@@ -8,6 +10,7 @@ import android.view.View;
 
 public class MicropolisView extends View
 {
+	Micropolis city;
 	Paint piePaint;
 	Paint bluePaint;
 	Bitmap tilesBitmap;
@@ -16,6 +19,9 @@ public class MicropolisView extends View
 	{
 		super(context, attrs);
 		
+		city = new Micropolis();
+		new MapGenerator(city).generateNewCity();
+
 		piePaint = new Paint();
 		piePaint.setColor(0xffff0000);
 		piePaint.setStyle(Paint.Style.FILL);
@@ -40,15 +46,17 @@ public class MicropolisView extends View
 	public void onDraw(Canvas canvas)
 	{
 		Paint p = new Paint();
-		canvas.drawBitmap(tilesBitmap,
-			0.0f, 0.0f,
-			p);
 
-		canvas.drawCircle(10.0f, 10.0f, 10.0f, piePaint);
-		canvas.drawCircle(10.0f, 100.0f, 8.0f, piePaint);
+		for (int y = 0; y < 32; y++) {
+			for (int x = 0; x < 32; x++) {
+				int t = city.getTile(x, y) & TileConstants.LOMASK;
+				t = t % 64;
 
-		canvas.drawText("Size of bitmap: "
-			+ tilesBitmap.getWidth() + " x " + tilesBitmap.getHeight(),
-			20.0f, 116.0f, bluePaint);
+				canvas.drawBitmap(tilesBitmap,
+					new Rect(0, t*32, 32, t*32+32),
+					new Rect(x*32, y*32, x*32+32, y*32+32),
+					p);
+			}
+		}
 	}
 }
