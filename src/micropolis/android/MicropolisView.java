@@ -17,6 +17,7 @@ public class MicropolisView extends View
 	Paint bluePaint;
 	Bitmap [] tilesBitmap;
 	Rect scrollBounds = new Rect();
+	Matrix lastMatrix = null;
 
 	public MicropolisView(Context context, AttributeSet attrs)
 	{
@@ -77,6 +78,7 @@ public class MicropolisView extends View
 			canvas.scale(scaleFactor, scaleFactor, scaleFocusX, scaleFocusY);
 		}
 		canvas.translate(-originX, -originY);
+		lastMatrix = canvas.getMatrix();
 
 		Rect bounds = canvas.getClipBounds();
 		int minY = bounds.top / tileSize;
@@ -148,6 +150,13 @@ public class MicropolisView extends View
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
 		{
 			startMomentum(velocityX, velocityY);
+			return true;
+		}
+
+		@Override
+		public boolean onSingleTapUp(MotionEvent evt)
+		{
+			processTool(evt.getX(), evt.getY());
 			return true;
 		}
 
@@ -235,5 +244,32 @@ public class MicropolisView extends View
 	private void stopMomentum()
 	{
 		this.activeScroller = null;
+	}
+
+	private void processTool(float x, float y)
+	{
+		CityLocation loc = getLocation(x, y);
+		city.setTile(loc.x, loc.y, (char) (city.getTile(loc.x, loc.y) + 1));
+		invalidate();
+	}
+
+	private CityLocation getLocation(float x, float y)
+	{
+		if (lastMatrix == null) {
+			return new CityLocation(0,0);
+		}
+
+		Matrix aMatrix = new Matrix();
+		if (!lastMatrix.invert(aMatrix)) {
+			return new CityLocation(0,0);
+		}
+
+		float [] pts = new float[] { x, y };
+		aMatrix.mapPoints(pts);
+
+		return new CityLocation(
+			(int)pts[0] / tileSize,
+			(int)pts[1] / tileSize
+			);
 	}
 }
