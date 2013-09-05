@@ -16,11 +16,12 @@ public class MicropolisView extends View
 	Paint piePaint;
 	Paint bluePaint;
 	Bitmap tilesBitmap;
+	Rect scrollBounds = new Rect();
 
 	public MicropolisView(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
-		
+
 		city = new Micropolis();
 		new MapGenerator(city).generateNewCity();
 
@@ -32,6 +33,15 @@ public class MicropolisView extends View
 		bluePaint.setColor(0xff0000ff);
 
 		loadTilesBitmap();
+	}
+
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh)
+	{
+		scrollBounds.left = -(w/2);
+		scrollBounds.top = -(h/2);
+		scrollBounds.right = scrollBounds.left + tileSize*city.getWidth();
+		scrollBounds.bottom = scrollBounds.top + tileSize*city.getHeight();
 	}
 
 	private void loadTilesBitmap()
@@ -93,6 +103,7 @@ public class MicropolisView extends View
 		@Override
 		public boolean onDown(MotionEvent ev)
 		{
+			stopMomentum();
 			return true;
 		}
 
@@ -101,6 +112,21 @@ public class MicropolisView extends View
 		{
 			originX += distanceX;
 			originY += distanceY;
+
+			if (originX < scrollBounds.left) {
+				originX = scrollBounds.left;
+			}
+			if (originX > scrollBounds.right) {
+				originX = scrollBounds.right;
+			}
+
+			if (originY < scrollBounds.top) {
+				originY = scrollBounds.top;
+			}
+			if (originY > scrollBounds.bottom) {
+				originY = scrollBounds.bottom;
+			}
+
 			invalidate();
 			return true;
 		}
@@ -108,7 +134,7 @@ public class MicropolisView extends View
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
 		{
-			startScrolling(velocityX, velocityY);
+			startMomentum(velocityX, velocityY);
 			return true;
 		}
 	}
@@ -130,8 +156,9 @@ public class MicropolisView extends View
 		MyScrollStep(float velX, float velY)
 		{
 			s.fling((int)originX, (int)originY, (int)-velX, (int)-velY,
-				0, 32*100, 0, 32*100,
-				32*10, 32*10);
+				scrollBounds.left, scrollBounds.right,
+				scrollBounds.top, scrollBounds.bottom,
+				tileSize*4, tileSize*4);
 		}
 
 		public void run()
@@ -160,9 +187,14 @@ public class MicropolisView extends View
 		}
 	}
 
-	private void startScrolling(float velX, float velY)
+	private void startMomentum(float velX, float velY)
 	{
 		this.activeScroller = new MyScrollStep(velX, velY);
 		myHandler.postDelayed(activeScroller, 100);
+	}
+
+	private void stopMomentum()
+	{
+		this.activeScroller = null;
 	}
 }
