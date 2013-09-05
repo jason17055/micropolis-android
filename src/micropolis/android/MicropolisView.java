@@ -15,7 +15,7 @@ public class MicropolisView extends View
 	Micropolis city;
 	Paint piePaint;
 	Paint bluePaint;
-	Bitmap tilesBitmap;
+	Bitmap [] tilesBitmap;
 	Rect scrollBounds = new Rect();
 
 	public MicropolisView(Context context, AttributeSet attrs)
@@ -48,10 +48,15 @@ public class MicropolisView extends View
 	{
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-		this.tilesBitmap = BitmapFactory.decodeResource(
-				getResources(),
-				R.drawable.tiles,
-				options);
+
+		this.tilesBitmap = new Bitmap[32];
+		for (int i = 0; i < tilesBitmap.length; i++) {
+			String s = String.format("tiles%02d", i);
+			int rid = getResources().getIdentifier(s, "drawable", "micropolis.android");
+			tilesBitmap[i] = BitmapFactory.decodeResource(
+					getResources(), rid, options
+					);
+		}
 	}
 
 	int tileSize = 32;
@@ -87,10 +92,10 @@ public class MicropolisView extends View
 		for (int y = minY; y < maxY; y++) {
 			for (int x = minX; x < maxX; x++) {
 				int t = city.getTile(x, y) & TileConstants.LOMASK;
-				t = t % 64;
+				int tz = t % 32;
 
-				canvas.drawBitmap(tilesBitmap,
-					new Rect(0, t*tileSize, tileSize, t*tileSize+tileSize),
+				canvas.drawBitmap(tilesBitmap[t/32],
+					new Rect(0, tz*tileSize, tileSize, tz*tileSize+tileSize),
 					new Rect(x*tileSize, y*tileSize, x*tileSize+tileSize, y*tileSize+tileSize),
 					p);
 			}
