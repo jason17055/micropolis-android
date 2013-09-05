@@ -8,6 +8,7 @@ import android.graphics.drawable.*;
 import android.util.AttributeSet;
 import android.os.Handler;
 import android.view.*;
+import android.widget.OverScroller;
 
 public class MicropolisView extends View
 {
@@ -80,9 +81,7 @@ public class MicropolisView extends View
 
 		canvas.restore();
 		if (activeScroller != null) {
-			String s = "Scroller: "
-				+ "velX="+activeScroller.velX+", "
-				+ "velY="+activeScroller.velY;
+			String s = "Scroller: " + activeScroller.toString();
 			canvas.drawText(s,
 				0.0f, 25.0f,
 				p);
@@ -126,36 +125,38 @@ public class MicropolisView extends View
 
 	class MyScrollStep implements Runnable
 	{
-		float velX;
-		float velY;
+		OverScroller s = new OverScroller(getContext());
 
 		MyScrollStep(float velX, float velY)
 		{
-			this.velX = velX;
-			this.velY = velY;
+			s.fling((int)originX, (int)originY, (int)-velX, (int)-velY,
+				0, 32*100, 0, 32*100,
+				32*10, 32*10);
 		}
 
 		public void run()
 		{
 			if (activeScroller == this) {
 
-				double vel = Math.sqrt(Math.pow(velX,2)+Math.pow(velY,2));
-				double vel1 = Math.max(0, vel-10.0);
+				boolean activ = s.computeScrollOffset();
 
-				velX *= vel1/vel;
-				velY *= vel1/vel;
-
-				originX -= velX * 0.1;
-				originY -= velY * 0.1;
+				originX = s.getCurrX();
+				originY = s.getCurrY();
 				invalidate();
 
-				if (vel1 == 0.0) {
+				if (!activ) {
 					activeScroller = null;
 				}
 				else {
 					myHandler.postDelayed(this, 100);
 				}
 			}
+		}
+
+		@Override
+		public String toString()
+		{
+			return "X: "+s.getCurrX()+" ("+s.getFinalX()+")";
 		}
 	}
 
