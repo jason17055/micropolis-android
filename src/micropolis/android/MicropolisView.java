@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.*;
 import android.graphics.drawable.*;
 import android.util.AttributeSet;
+import android.os.Handler;
 import android.view.*;
 
 public class MicropolisView extends View
@@ -14,7 +15,7 @@ public class MicropolisView extends View
 	Paint piePaint;
 	Paint bluePaint;
 	Bitmap tilesBitmap;
-	
+
 	public MicropolisView(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
@@ -78,6 +79,14 @@ public class MicropolisView extends View
 		}
 
 		canvas.restore();
+		if (activeScroller != null) {
+			String s = "Scroller: "
+				+ "velX="+activeScroller.velX+", "
+				+ "velY="+activeScroller.velY;
+			canvas.drawText(s,
+				0.0f, 25.0f,
+				p);
+		}
 	}
 
 	class MyGestureListener extends GestureDetector.SimpleOnGestureListener
@@ -96,6 +105,13 @@ public class MicropolisView extends View
 			invalidate();
 			return true;
 		}
+
+		@Override
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
+		{
+			startScrolling(velocityX, velocityY);
+			return true;
+		}
 	}
 	GestureDetector gestDetector = new GestureDetector(getContext(), new MyGestureListener());
 
@@ -103,5 +119,49 @@ public class MicropolisView extends View
 	public boolean onTouchEvent(MotionEvent evt)
 	{
 		return gestDetector.onTouchEvent(evt);
+	}
+
+	MyScrollStep activeScroller = null;
+	Handler myHandler = new Handler();
+
+	class MyScrollStep implements Runnable
+	{
+		float velX;
+		float velY;
+
+		MyScrollStep(float velX, float velY)
+		{
+			this.velX = velX;
+			this.velY = velY;
+		}
+
+		public void run()
+		{
+			if (activeScroller == this) {
+
+				double vel = Math.sqrt(Math.pow(velX,2)+Math.pow(velY,2));
+				double vel1 = Math.max(0, vel-10.0);
+
+				velX *= vel1/vel;
+				velY *= vel1/vel;
+
+				originX -= velX * 0.1;
+				originY -= velY * 0.1;
+				invalidate();
+
+				if (vel1 == 0.0) {
+					activeScroller = null;
+				}
+				else {
+					myHandler.postDelayed(this, 100);
+				}
+			}
+		}
+	}
+
+	private void startScrolling(float velX, float velY)
+	{
+		this.activeScroller = new MyScrollStep(velX, velY);
+		myHandler.postDelayed(activeScroller, 100);
 	}
 }
