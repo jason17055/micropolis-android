@@ -58,12 +58,19 @@ public class MicropolisView extends View
 	float originX = 0.0f;
 	float originY = 0.0f;
 
+	float scaleFocusX = 0.0f;
+	float scaleFocusY = 0.0f;
+	float scaleFactor = 1.0f;
+
 	@Override
 	public void onDraw(Canvas canvas)
 	{
 		Paint p = new Paint();
 
 		canvas.save();
+		if (scaleFactor != 1.0f) {
+			canvas.scale(scaleFactor, scaleFactor, scaleFocusX, scaleFocusY);
+		}
 		canvas.translate(-originX, -originY);
 
 		Rect bounds = canvas.getClipBounds();
@@ -90,15 +97,16 @@ public class MicropolisView extends View
 		}
 
 		canvas.restore();
-		if (activeScroller != null) {
-			String s = "Scroller: " + activeScroller.toString();
-			canvas.drawText(s,
-				0.0f, 25.0f,
-				p);
-		}
+//		if (activeScroller != null) {
+//			String s = "Scroller: " + activeScroller.toString();
+//			canvas.drawText(s,
+//				0.0f, 25.0f,
+//				p);
+//		}
 	}
 
 	class MyGestureListener extends GestureDetector.SimpleOnGestureListener
+			implements ScaleGestureDetector.OnScaleGestureListener
 	{
 		@Override
 		public boolean onDown(MotionEvent ev)
@@ -137,13 +145,39 @@ public class MicropolisView extends View
 			startMomentum(velocityX, velocityY);
 			return true;
 		}
+
+		// implements OnScaleGestureListener
+		public boolean onScale(ScaleGestureDetector d)
+		{
+			scaleFocusX = d.getFocusX();
+			scaleFocusY = d.getFocusY();
+			scaleFactor *= d.getScaleFactor();
+			scaleFactor = Math.min(Math.max(scaleFactor, 0.5f), 2.0f);
+			invalidate();
+			return true;
+		}
+
+		// implements OnScaleGestureListener
+		public boolean onScaleBegin(ScaleGestureDetector d)
+		{
+			return true;
+		}
+
+		// implements OnScaleGestureListener
+		public void onScaleEnd(ScaleGestureDetector d)
+		{
+		}
 	}
-	GestureDetector gestDetector = new GestureDetector(getContext(), new MyGestureListener());
+	MyGestureListener mgl = new MyGestureListener();
+	GestureDetector gestDetector = new GestureDetector(getContext(), mgl);
+	ScaleGestureDetector scaleDetector = new ScaleGestureDetector(getContext(), mgl);
 
 	@Override
 	public boolean onTouchEvent(MotionEvent evt)
 	{
-		return gestDetector.onTouchEvent(evt);
+		boolean x1 = gestDetector.onTouchEvent(evt);
+		boolean x2 = scaleDetector.onTouchEvent(evt);
+		return x1 || x2;
 	}
 
 	MyScrollStep activeScroller = null;
