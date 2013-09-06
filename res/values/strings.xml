@@ -4,6 +4,7 @@
     <string name="action_settings">Settings</string>
     <string name="hello_world">Welcome to Micropolis!</string>
     <string name="button_send">Home Button</string>
-    <string name="tb_road">Roads</string>
 	<string name="tool_ok_btn">OK</string>
+	<string name="run_sim">Run</string>
+	<string name="pause_sim">Pause</string>
 </resources>

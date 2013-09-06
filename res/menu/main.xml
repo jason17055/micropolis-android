@@ -1,8 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
-	<item android:id="@+id/action_build_roads"
-		android:icon="@drawable/icroad"
-		android:title="@string/tb_road"
+	<item android:id="@+id/action_run_sim"
+		android:title="@string/run_sim"
+		android:showAsAction="ifRoom" />
+	<item android:id="@+id/action_pause_sim"
+		android:title="@string/pause_sim"
 		android:showAsAction="ifRoom" />
 
     <item

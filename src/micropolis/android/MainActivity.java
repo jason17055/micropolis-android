@@ -1,7 +1,8 @@
 package micropolis.android;
 
-import android.os.Bundle;
 import android.app.Activity;
+import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,8 +29,11 @@ public class MainActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		switch (item.getItemId()) {
-		case R.id.action_build_roads:
-			doRoadTool();
+		case R.id.action_run_sim:
+			doRun();
+			return true;
+		case R.id.action_pause_sim:
+			doPause();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -42,8 +46,34 @@ public class MainActivity extends Activity {
 		view.setTool(newTool);
 	}
 
-	void doRoadTool()
+	Micropolis getCity()
 	{
+		MicropolisView view = (MicropolisView) findViewById(R.id.main_view);
+		return view.city;
+	}
+
+	class MyAdvancer implements Runnable
+	{
+		public void run()
+		{
+			if (this != advanceSim) { return; }
+			getCity().animate();
+			myHandler.postDelayed(this, 250);
+		}
+	}
+
+	Handler myHandler = new Handler();
+	Runnable advanceSim = null;
+
+	void doPause()
+	{
+		advanceSim = null;
+	}
+
+	void doRun()
+	{
+		advanceSim = new MyAdvancer();
+		advanceSim.run();
 	}
 
 	private void setToolsVisibility(int v)
