@@ -30,56 +30,56 @@
 
 		<ImageButton android:id="@+id/bulldozer_tool_btn"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_height="match_parent"
 			android:src="@drawable/icdozr"
 			android:onClick="onBulldozerToolClicked"
 			/>
 
 		<ImageButton android:id="@+id/road_tool_btn"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_height="match_parent"
 			android:src="@drawable/icroad"
 			android:onClick="onRoadToolClicked"
 			/>
 
 		<ImageButton android:id="@+id/rail_tool_btn"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_height="match_parent"
 			android:src="@drawable/icrail"
 			android:onClick="onRailToolClicked"
 			/>
 
 		<ImageButton android:id="@+id/wire_tool_btn"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_height="match_parent"
 			android:src="@drawable/icwire"
 			android:onClick="onWireToolClicked"
 			/>
 
 		<ImageButton android:id="@+id/res_tool_btn"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_height="match_parent"
 			android:src="@drawable/icres"
 			android:onClick="onResZoneToolClicked"
 			/>
 
 		<ImageButton android:id="@+id/com_tool_btn"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_height="match_parent"
 			android:src="@drawable/iccom"
 			android:onClick="onComZoneToolClicked"
 			/>
 
 		<ImageButton android:id="@+id/ind_tool_btn"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_height="match_parent"
 			android:src="@drawable/icind"
 			android:onClick="onIndZoneToolClicked"
 			/>
 
 		<ImageButton android:id="@+id/coal_tool_btn"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_height="match_parent"
 			android:src="@drawable/iccoal"
 			android:onClick="onCoalToolClicked"
 			/>
@@ -87,7 +87,7 @@
 	<Button
 		android:id="@+id/ok_btn"
 		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
+		android:layout_height="match_parent"
 		android:text="@string/tool_ok_btn"
 		android:onClick="onOkClicked"
 		android:visibility="gone"
