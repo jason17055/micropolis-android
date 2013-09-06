@@ -28,6 +28,13 @@
     		android:paddingTop="@dimen/activity_vertical_margin"
 		>
 
+		<ImageButton android:id="@+id/bulldozer_tool_btn"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/icdozr"
+			android:onClick="onBulldozerToolClicked"
+			/>
+
 		<ImageButton android:id="@+id/road_tool_btn"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -68,6 +75,13 @@
 			android:layout_height="wrap_content"
 			android:src="@drawable/icind"
 			android:onClick="onIndZoneToolClicked"
+			/>
+
+		<ImageButton android:id="@+id/coal_tool_btn"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/iccoal"
+			android:onClick="onCoalToolClicked"
 			/>
 
 	<Button

@@ -48,12 +48,21 @@ public class MainActivity extends Activity {
 
 	private void setToolsVisibility(int v)
 	{
+		findViewById(R.id.bulldozer_tool_btn).setVisibility(v);
 		findViewById(R.id.road_tool_btn).setVisibility(v);
 		findViewById(R.id.rail_tool_btn).setVisibility(v);
 		findViewById(R.id.wire_tool_btn).setVisibility(v);
 		findViewById(R.id.res_tool_btn).setVisibility(v);
 		findViewById(R.id.com_tool_btn).setVisibility(v);
 		findViewById(R.id.ind_tool_btn).setVisibility(v);
+		findViewById(R.id.coal_tool_btn).setVisibility(v);
+	}
+
+	public void onBulldozerToolClicked(View view)
+	{
+		setToolsVisibility(View.GONE);
+		findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
+		setTool(MicropolisTool.BULLDOZER);
 	}
 
 	public void onRoadToolClicked(View view)
@@ -96,6 +105,13 @@ public class MainActivity extends Activity {
 		setToolsVisibility(View.GONE);
 		findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
 		setTool(MicropolisTool.INDUSTRIAL);
+	}
+
+	public void onCoalToolClicked(View view)
+	{
+		setToolsVisibility(View.GONE);
+		findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
+		setTool(MicropolisTool.POWERPLANT);
 	}
 
 	public void onOkClicked(View view)
