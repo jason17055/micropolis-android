@@ -25,6 +25,16 @@ public class MicropolisView extends View
 
 		city = new Micropolis();
 		new MapGenerator(city).generateNewCity();
+		city.addMapListener(new MapListener() {
+			public void mapOverlayDataChanged(MapState overlayDataType) {}
+			public void spriteMoved(Sprite sprite) {}
+			public void tileChanged(int xpos, int ypos) {
+				onTileChanged(xpos, ypos);
+			}
+			public void wholeMapChanged() {
+				invalidate();
+			}
+			});
 
 		piePaint = new Paint();
 		piePaint.setColor(0xffff0000);
@@ -249,8 +259,10 @@ public class MicropolisView extends View
 	private void processTool(float x, float y)
 	{
 		CityLocation loc = getLocation(x, y);
-		city.setTile(loc.x, loc.y, (char) (city.getTile(loc.x, loc.y) + 1));
-		invalidate();
+		if (currentTool != null) {
+			city.setFunds(10000);
+			currentTool.apply(city, loc.x, loc.y);
+		}
 	}
 
 	private CityLocation getLocation(float x, float y)
@@ -271,5 +283,17 @@ public class MicropolisView extends View
 			(int)pts[0] / tileSize,
 			(int)pts[1] / tileSize
 			);
+	}
+
+	MicropolisTool currentTool = null;
+	void setTool(MicropolisTool tool)
+	{
+		this.currentTool = tool;
+	}
+
+	private void onTileChanged(int xpos, int ypos)
+	{
+		//TODO- only invalidate the area where this tile is drawn
+		invalidate();
 	}
 }

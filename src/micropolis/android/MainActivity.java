@@ -3,6 +3,9 @@ package micropolis.android;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
+import android.view.MenuItem;
+
+import micropolisj.engine.*;
 
 public class MainActivity extends Activity {
 
@@ -20,4 +23,21 @@ public class MainActivity extends Activity {
         return true;
     }
     
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item)
+	{
+		switch (item.getItemId()) {
+		case R.id.action_build_roads:
+			doRoadTool();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	void doRoadTool()
+	{
+		MicropolisView view = (MicropolisView) findViewById(R.id.main_view);
+		view.setTool(MicropolisTool.ROADS);
+	}
 }
