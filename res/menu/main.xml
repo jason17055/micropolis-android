@@ -1,5 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
+	<item android:id="@+id/action_build_roads"
+		android:icon="@drawable/icroad"
+		android:title="@string/tb_road"
+		android:showAsAction="ifRoom" />
+
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
