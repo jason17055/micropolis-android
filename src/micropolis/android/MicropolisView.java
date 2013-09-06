@@ -2,6 +2,7 @@ package micropolis.android;
 
 import micropolisj.engine.*;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.*;
 import android.graphics.drawable.*;
@@ -258,10 +259,21 @@ public class MicropolisView extends View
 
 	private void processTool(float x, float y)
 	{
+		try {
+
 		CityLocation loc = getLocation(x, y);
 		if (currentTool != null) {
 			city.setFunds(10000);
 			currentTool.apply(city, loc.x, loc.y);
+		}
+
+		}
+		catch (Throwable e)
+		{
+			AlertDialog alert = new AlertDialog.Builder(getContext()).create();
+			alert.setTitle("Error");
+			alert.setMessage(e.toString());
+			alert.show();
 		}
 	}
 
