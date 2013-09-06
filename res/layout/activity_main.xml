@@ -11,26 +11,75 @@
 		android:id="@+id/main_view"
 		/>
 
-<LinearLayout
+<FrameLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
 	>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="bottom"
+		android:orientation="horizontal"
+    		android:paddingBottom="@dimen/activity_vertical_margin"
+    		android:paddingLeft="@dimen/activity_horizontal_margin"
+    		android:paddingRight="@dimen/activity_horizontal_margin"
+    		android:paddingTop="@dimen/activity_vertical_margin"
+		>
+
+		<ImageButton android:id="@+id/road_tool_btn"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/icroad"
+			android:onClick="onRoadToolClicked"
+			/>
+
+		<ImageButton android:id="@+id/rail_tool_btn"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/icrail"
+			android:onClick="onRailToolClicked"
+			/>
+
+		<ImageButton android:id="@+id/wire_tool_btn"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/icwire"
+			android:onClick="onWireToolClicked"
+			/>
+
+		<ImageButton android:id="@+id/res_tool_btn"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/icres"
+			android:onClick="onResZoneToolClicked"
+			/>
+
+		<ImageButton android:id="@+id/com_tool_btn"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/iccom"
+			android:onClick="onComZoneToolClicked"
+			/>
+
+		<ImageButton android:id="@+id/ind_tool_btn"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/icind"
+			android:onClick="onIndZoneToolClicked"
+			/>
 
 	<Button
+		android:id="@+id/ok_btn"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="@string/button_send" />    
+		android:text="@string/tool_ok_btn"
+		android:onClick="onOkClicked"
+		android:visibility="gone"
+		/>
+	</LinearLayout>
 
-</LinearLayout>
+</FrameLayout>
 
 </FrameLayout>

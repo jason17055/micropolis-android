@@ -5,4 +5,5 @@
     <string name="hello_world">Welcome to Micropolis!</string>
     <string name="button_send">Home Button</string>
     <string name="tb_road">Roads</string>
+	<string name="tool_ok_btn">OK</string>
 </resources>
