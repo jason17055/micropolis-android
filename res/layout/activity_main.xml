@@ -23,6 +23,12 @@
 		android:orientation="vertical"
 		>
 
+		<TextView android:id="@+id/date_ind"
+			android:text=""
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			/>
+
 		<TextView android:id="@+id/funds_ind"
 			android:text="@string/funds_ind_val"
 			android:layout_width="wrap_content"

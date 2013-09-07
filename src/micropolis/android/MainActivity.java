@@ -10,6 +10,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import java.text.MessageFormat;
+import java.util.Calendar;
+
 import micropolisj.engine.*;
 
 public class MainActivity extends Activity
@@ -76,13 +79,14 @@ public class MainActivity extends Activity
 	{
 		void sched()
 		{
-			myHandler.postDelayed(this, 250);
+			myHandler.postDelayed(this, 200);
 		}
 
 		public void run()
 		{
 			if (this != advanceSim) { return; }
 			getCity().animate();
+			updateDateLabel();
 			sched();
 		}
 	}
@@ -234,5 +238,27 @@ public class MainActivity extends Activity
 		if (fundsInd != null) {
 			fundsInd.setText("Funds: "+city.budget.totalFunds);
 		}
+	}
+
+	static String formatGameDate(int cityTime)
+	{
+		Calendar c = Calendar.getInstance();
+		c.set(1900 + cityTime/48, //year
+			(cityTime%48)/4, //month
+			(cityTime%4)*7+1 //day of month
+			);
+		return MessageFormat.format(
+			"{0,date,MMM yyyy}",
+			c.getTime()
+			);
+	}
+
+	private void updateDateLabel()
+	{
+		String s = formatGameDate(city.cityTime);
+		TextView dateInd = (TextView) findViewById(R.id.date_ind);
+		if (dateInd == null) return;
+
+		dateInd.setText(s);
 	}
 }
