@@ -9,6 +9,6 @@
 	<string name="pause_sim">Pause</string>
 
 	<!-- PickBuilding Dialog -->
+	<string name="pickbuilding_caption">Choose Building</string>
 	<string name="cancel">Cancel</string>
-	<string name="dialog_fire_missiles">Fire Missiles</string>
 </resources>
