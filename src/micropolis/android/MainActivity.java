@@ -231,6 +231,8 @@ public class MainActivity extends Activity
 	public void fundsChanged()
 	{
 		TextView fundsInd = (TextView) findViewById(R.id.funds_ind);
-		fundsInd.setText("Funds: "+city.budget.totalFunds);
+		if (fundsInd != null) {
+			fundsInd.setText("Funds: "+city.budget.totalFunds);
+		}
 	}
 }
