@@ -10,7 +10,9 @@ import android.view.View;
 
 import micropolisj.engine.*;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity
+	implements PickBuildingDialogFragment.Listener
+{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,12 +142,16 @@ public class MainActivity extends Activity {
 
 	public void onCoalToolClicked(View view)
 	{
-		//setToolsVisibility(View.GONE);
-		//findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
-		//setTool(MicropolisTool.POWERPLANT);
-
 		DialogFragment dlg = new PickBuildingDialogFragment();
 		dlg.show(getFragmentManager(), "PickBuildingDialogFragment");
+	}
+
+	// implements PickBuildingDialogFragment.Listener
+	public void onPickBuilding(MicropolisTool buildingTool)
+	{
+		setToolsVisibility(View.GONE);
+		findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
+		setTool(buildingTool);
 	}
 
 	public void onOkClicked(View view)

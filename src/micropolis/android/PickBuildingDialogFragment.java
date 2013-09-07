@@ -1,5 +1,7 @@
 package micropolis.android;
 
+import micropolisj.engine.MicropolisTool;
+
 import android.app.*;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,6 +19,21 @@ import static android.widget.AdapterView.OnItemClickListener;
 
 public class PickBuildingDialogFragment extends DialogFragment
 {
+	public interface Listener
+	{
+		void onPickBuilding(MicropolisTool buildingTool);
+	}
+	Listener myListener;
+
+	@Override
+	public void onAttach(Activity activity)
+	{
+		super.onAttach(activity);
+		if (activity instanceof Listener) {
+			myListener = (Listener) activity;
+		}
+	}
+
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState)
 	{
@@ -45,8 +62,20 @@ public class PickBuildingDialogFragment extends DialogFragment
 		gridview.setAdapter(new MyAdapter(contentView.getContext()));
 		gridview.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-				Toast.makeText(contentView.getContext(), ""+position, Toast.LENGTH_SHORT).show();
+				PickBuildingDialogFragment.this.onItemClick(
+					position,
+					parent.getItemAtPosition(position)
+					);
 			}});
+	}
+
+	void onItemClick(int position, Object item)
+	{
+		if (myListener != null) {
+			MicropolisTool tool = (MicropolisTool) item;
+			myListener.onPickBuilding(tool);
+		}
+		dismiss();
 	}
 
 	class MyAdapter extends BaseAdapter
@@ -67,13 +96,13 @@ public class PickBuildingDialogFragment extends DialogFragment
 		@Override
 		public Object getItem(int position)
 		{
-			return new Integer(building_icons[position]);
+			return building_tools[position];
 		}
 
 		@Override
 		public long getItemId(int position)
 		{
-			return building_icons[position];
+			return position;
 		}
 
 		@Override
@@ -106,5 +135,15 @@ public class PickBuildingDialogFragment extends DialogFragment
 		R.drawable.icseap,
 		R.drawable.icairp,
 		R.drawable.icpark
+		};
+	static MicropolisTool[] building_tools = {
+		MicropolisTool.POWERPLANT,
+		MicropolisTool.NUCLEAR,
+		MicropolisTool.POLICE,
+		MicropolisTool.FIRE,
+		MicropolisTool.STADIUM,
+		MicropolisTool.SEAPORT,
+		MicropolisTool.AIRPORT,
+		MicropolisTool.PARK
 		};
 }
