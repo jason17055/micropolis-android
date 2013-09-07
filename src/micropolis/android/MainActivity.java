@@ -33,10 +33,10 @@ public class MainActivity extends Activity
 	{
 		switch (item.getItemId()) {
 		case R.id.action_run_sim:
-			doRun();
+			doRunSim();
 			return true;
 		case R.id.action_pause_sim:
-			doPause();
+			doPauseSim();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -57,24 +57,32 @@ public class MainActivity extends Activity
 
 	class MyAdvancer implements Runnable
 	{
+		void sched()
+		{
+			myHandler.postDelayed(this, 250);
+		}
+
 		public void run()
 		{
 			if (this != advanceSim) { return; }
 			getCity().animate();
-			myHandler.postDelayed(this, 250);
+			sched();
 		}
 	}
 
 	Handler myHandler = new Handler();
-	Runnable advanceSim = null;
+	MyAdvancer advanceSim = null;
+	boolean simEnabled = false;
 
-	void doPause()
+	void doPauseSim()
 	{
+		simEnabled = false;
 		advanceSim = null;
 	}
 
-	void doRun()
+	void doRunSim()
 	{
+		simEnabled = true;
 		advanceSim = new MyAdvancer();
 		advanceSim.run();
 	}
@@ -159,5 +167,24 @@ public class MainActivity extends Activity
 		findViewById(R.id.ok_btn).setVisibility(View.GONE);
 		setToolsVisibility(View.VISIBLE);
 		setTool(null);
+	}
+
+	@Override
+	public void onPause()
+	{
+		super.onPause();
+		if (simEnabled && advanceSim != null) {
+			advanceSim = null;
+		}
+	}
+
+	@Override
+	public void onResume()
+	{
+		super.onResume();
+		if (simEnabled && advanceSim == null) {
+			advanceSim = new MyAdvancer();
+			advanceSim.sched();
+		}
 	}
 }
