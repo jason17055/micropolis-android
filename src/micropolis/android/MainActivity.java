@@ -1,24 +1,36 @@
 package micropolis.android;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import micropolisj.engine.*;
 
 public class MainActivity extends Activity
-	implements PickBuildingDialogFragment.Listener
+	implements PickBuildingDialogFragment.Listener,
+		Micropolis.Listener
 {
+	Micropolis city;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-    }
+	@Override
+	protected void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+
+		this.city = new Micropolis();
+		new MapGenerator(city).generateNewCity();
+		city.setFunds(20000);
+
+		city.addListener(this);
+		getMicropolisView().setCity(city);
+	}
 
 
     @Override
@@ -51,8 +63,13 @@ public class MainActivity extends Activity
 
 	Micropolis getCity()
 	{
+		return city;
+	}
+
+	MicropolisView getMicropolisView()
+	{
 		MicropolisView view = (MicropolisView) findViewById(R.id.main_view);
-		return view.city;
+		return view;
 	}
 
 	class MyAdvancer implements Runnable
@@ -186,5 +203,34 @@ public class MainActivity extends Activity
 			advanceSim = new MyAdvancer();
 			advanceSim.sched();
 		}
+	}
+
+	// implements Micropolis.Listener
+	public void cityMessage(MicropolisMessage message, CityLocation loc, boolean isPic)
+	{
+	}
+
+	// implements Micropolis.Listener
+	public void citySound(Sound sound, CityLocation loc)
+	{
+	}
+
+	// implements Micropolis.Listener
+	public void censusChanged() { }
+
+	// implements Micropolis.Listener
+	public void demandChanged() { }
+
+	// implements Micropolis.Listener
+	public void evaluationChanged() {}
+
+	// implements Micropolis.Listener
+	public void optionsChanged() {}
+
+	// implements Micropolis.Listener
+	public void fundsChanged()
+	{
+		TextView fundsInd = (TextView) findViewById(R.id.funds_ind);
+		fundsInd.setText("Funds: "+city.budget.totalFunds);
 	}
 }

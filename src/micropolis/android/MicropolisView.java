@@ -14,8 +14,6 @@ import android.widget.OverScroller;
 public class MicropolisView extends View
 {
 	Micropolis city;
-	Paint piePaint;
-	Paint bluePaint;
 	Bitmap [] tilesBitmap;
 	Rect scrollBounds = new Rect();
 	Matrix lastMatrix = null;
@@ -24,8 +22,13 @@ public class MicropolisView extends View
 	{
 		super(context, attrs);
 
-		city = new Micropolis();
-		new MapGenerator(city).generateNewCity();
+		loadTilesBitmap();
+	}
+
+	public void setCity(Micropolis newCity)
+	{
+		this.city = newCity;
+
 		city.addMapListener(new MapListener() {
 			public void mapOverlayDataChanged(MapState overlayDataType) {}
 			public void spriteMoved(Sprite sprite) {}
@@ -36,15 +39,6 @@ public class MicropolisView extends View
 				invalidate();
 			}
 			});
-
-		piePaint = new Paint();
-		piePaint.setColor(0xffff0000);
-		piePaint.setStyle(Paint.Style.FILL);
-
-		bluePaint = new Paint();
-		bluePaint.setColor(0xff0000ff);
-
-		loadTilesBitmap();
 	}
 
 	@Override
@@ -263,7 +257,6 @@ public class MicropolisView extends View
 
 		CityLocation loc = getLocation(x, y);
 		if (currentTool != null) {
-			city.setFunds(10000);
 			currentTool.apply(city, loc.x, loc.y);
 		}
 
