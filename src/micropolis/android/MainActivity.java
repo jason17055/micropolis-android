@@ -10,6 +10,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Calendar;
 
@@ -21,15 +24,40 @@ public class MainActivity extends Activity
 {
 	Micropolis city;
 
+	static final String ST_MICROPOLIS = "micropolis.city";
+
+	private boolean restoreCity(Bundle st)
+	{
+		if (st == null) return false;
+
+		byte [] bytes = st.getByteArray(ST_MICROPOLIS);
+		if (bytes == null) return false;
+
+		try {
+			ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+			this.city = new Micropolis();
+			city.load(in);
+			return true;
+		}
+		catch (IOException e)
+		{
+			// not really expected, but we must define
+			// behavior for this case
+			return false;
+		}
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		this.city = new Micropolis();
-		new MapGenerator(city).generateNewCity();
-		city.setFunds(20000);
+		if (!restoreCity(savedInstanceState)) {
+			this.city = new Micropolis();
+			new MapGenerator(city).generateNewCity();
+			city.setFunds(20000);
+		}
 
 		city.addListener(this);
 		getMicropolisView().setCity(city);
@@ -206,6 +234,23 @@ public class MainActivity extends Activity
 		if (simEnabled && advanceSim == null) {
 			advanceSim = new MyAdvancer();
 			advanceSim.sched();
+		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle st)
+	{
+		super.onSaveInstanceState(st);
+
+		try {
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		city.save(bytes);
+
+		st.putByteArray(ST_MICROPOLIS, bytes.toByteArray());
+		}
+		catch (IOException e) {
+			// not expected
+			throw new Error("unexpected: "+e, e);
 		}
 	}
 
