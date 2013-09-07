@@ -7,4 +7,8 @@
 	<string name="tool_ok_btn">OK</string>
 	<string name="run_sim">Run</string>
 	<string name="pause_sim">Pause</string>
+
+	<!-- PickBuilding Dialog -->
+	<string name="cancel">Cancel</string>
+	<string name="dialog_fire_missiles">Fire Missiles</string>
 </resources>

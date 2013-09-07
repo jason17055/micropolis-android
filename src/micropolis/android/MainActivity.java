@@ -1,6 +1,7 @@
 package micropolis.android;
 
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
@@ -139,9 +140,12 @@ public class MainActivity extends Activity {
 
 	public void onCoalToolClicked(View view)
 	{
-		setToolsVisibility(View.GONE);
-		findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
-		setTool(MicropolisTool.POWERPLANT);
+		//setToolsVisibility(View.GONE);
+		//findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
+		//setTool(MicropolisTool.POWERPLANT);
+
+		DialogFragment dlg = new PickBuildingDialogFragment();
+		dlg.show(getFragmentManager(), "PickBuildingDialogFragment");
 	}
 
 	public void onOkClicked(View view)
