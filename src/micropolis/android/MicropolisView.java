@@ -7,7 +7,9 @@ import android.content.Context;
 import android.graphics.*;
 import android.graphics.drawable.*;
 import android.util.AttributeSet;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.view.*;
 import android.widget.OverScroller;
 
@@ -17,6 +19,16 @@ public class MicropolisView extends View
 	Bitmap [] tilesBitmap;
 	Rect scrollBounds = new Rect();
 	Matrix lastMatrix = null;
+
+	int tileSize = 32;
+	float originX = 0.0f;
+	float originY = 0.0f;
+
+	float scaleFocusX = 0.0f;
+	float scaleFocusY = 0.0f;
+	float scaleFactor = 1.0f;
+
+	MicropolisTool currentTool = null;
 
 	public MicropolisView(Context context, AttributeSet attrs)
 	{
@@ -64,14 +76,6 @@ public class MicropolisView extends View
 					);
 		}
 	}
-
-	int tileSize = 32;
-	float originX = 0.0f;
-	float originY = 0.0f;
-
-	float scaleFocusX = 0.0f;
-	float scaleFocusY = 0.0f;
-	float scaleFactor = 1.0f;
 
 	@Override
 	public void onDraw(Canvas canvas)
@@ -290,7 +294,6 @@ public class MicropolisView extends View
 			);
 	}
 
-	MicropolisTool currentTool = null;
 	void setTool(MicropolisTool tool)
 	{
 		this.currentTool = tool;
@@ -301,4 +304,35 @@ public class MicropolisView extends View
 		//TODO- only invalidate the area where this tile is drawn
 		invalidate();
 	}
+
+	@Override
+	protected Parcelable onSaveInstanceState()
+	{
+		Bundle b = new Bundle();
+		b.putParcelable("superState", super.onSaveInstanceState());
+		b.putFloat("scaleFactor", scaleFactor);
+		b.putFloat("originX", originX);
+		b.putFloat("originY", originY);
+		return b;
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Parcelable state)
+	{
+		if (state instanceof Bundle) {
+			Bundle b = (Bundle) state;
+			super.onRestoreInstanceState(b.getParcelable("superState"));
+			scaleFactor = b.getFloat("scaleFactor");
+			originX = b.getFloat("originX");
+			originY = b.getFloat("originY");
+
+			if (scaleFactor < 0.5f) {
+				scaleFactor = 0.5f;
+			}
+		}
+		else {
+			super.onRestoreInstanceState(state);
+		}
+	}
+
 }
