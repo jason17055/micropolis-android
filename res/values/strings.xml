@@ -7,6 +7,7 @@
 	<string name="tool_ok_btn">OK</string>
 	<string name="run_sim">Run</string>
 	<string name="pause_sim">Pause</string>
+	<string name="funds_ind_val">Zero Funds</string>
 
 	<!-- PickBuilding Dialog -->
 	<string name="pickbuilding_caption">Choose Building</string>
