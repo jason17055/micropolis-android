@@ -18,7 +18,7 @@ public class MicropolisView extends View
 	Micropolis city;
 	Bitmap [] tilesBitmap;
 	Rect scrollBounds = new Rect();
-	Matrix lastMatrix = null;
+	Matrix renderMatrix = new Matrix();
 
 	int tileSize = 32;
 	float originX = 0.0f;
@@ -77,17 +77,22 @@ public class MicropolisView extends View
 		}
 	}
 
+	private void updateRenderMatrix()
+	{
+		renderMatrix.reset();
+		if (scaleFactor != 1.0f) {
+			renderMatrix.preScale(scaleFactor, scaleFactor, scaleFocusX, scaleFocusY);
+		}
+		renderMatrix.preTranslate(-originX, -originY);
+	}
+
 	@Override
 	public void onDraw(Canvas canvas)
 	{
 		Paint p = new Paint();
 
 		canvas.save();
-		if (scaleFactor != 1.0f) {
-			canvas.scale(scaleFactor, scaleFactor, scaleFocusX, scaleFocusY);
-		}
-		canvas.translate(-originX, -originY);
-		lastMatrix = canvas.getMatrix();
+		canvas.concat(renderMatrix);
 
 		Rect bounds = canvas.getClipBounds();
 		int minY = bounds.top / tileSize;
@@ -151,6 +156,7 @@ public class MicropolisView extends View
 				originY = scrollBounds.bottom;
 			}
 
+			updateRenderMatrix();
 			invalidate();
 			return true;
 		}
@@ -176,6 +182,7 @@ public class MicropolisView extends View
 			scaleFocusY = d.getFocusY();
 			scaleFactor *= d.getScaleFactor();
 			scaleFactor = Math.min(Math.max(scaleFactor, 0.5f), 2.0f);
+			updateRenderMatrix();
 			invalidate();
 			return true;
 		}
@@ -276,12 +283,8 @@ public class MicropolisView extends View
 
 	private CityLocation getLocation(float x, float y)
 	{
-		if (lastMatrix == null) {
-			return new CityLocation(0,0);
-		}
-
 		Matrix aMatrix = new Matrix();
-		if (!lastMatrix.invert(aMatrix)) {
+		if (!renderMatrix.invert(aMatrix)) {
 			return new CityLocation(0,0);
 		}
 
@@ -329,6 +332,7 @@ public class MicropolisView extends View
 			if (scaleFactor < 0.5f) {
 				scaleFactor = 0.5f;
 			}
+			updateRenderMatrix();
 		}
 		else {
 			super.onRestoreInstanceState(state);
