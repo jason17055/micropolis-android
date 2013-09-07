@@ -63,6 +63,21 @@ public class MainActivity extends Activity
 		getMicropolisView().setCity(city);
 	}
 
+	@Override
+	public void onRestoreInstanceState(Bundle b)
+	{
+		super.onRestoreInstanceState(b);
+
+		String tmp = b.getString("currentTool");
+		if (tmp != null) {
+			setToolsVisibility(View.GONE);
+			findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
+			setTool(
+				MicropolisTool.valueOf(tmp)
+				);
+		}
+	}
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -251,6 +266,11 @@ public class MainActivity extends Activity
 		catch (IOException e) {
 			// not expected
 			throw new Error("unexpected: "+e, e);
+		}
+
+		MicropolisTool currentTool = getMicropolisView().currentTool;
+		if (currentTool != null) {
+			st.putString("currentTool", currentTool.name());
 		}
 	}
 
