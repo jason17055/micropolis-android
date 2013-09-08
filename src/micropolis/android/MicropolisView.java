@@ -86,6 +86,23 @@ public class MicropolisView extends View
 		renderMatrix.preTranslate(-originX, -originY);
 	}
 
+	Rect getTileBounds(int xpos, int ypos)
+	{
+		float [] pts = {
+			xpos * tileSize,
+			ypos * tileSize,
+			(xpos+1) * tileSize,
+			(ypos+1) * tileSize
+			};
+		renderMatrix.mapPoints(pts);
+		return new Rect(
+			(int)Math.floor(pts[0]),
+			(int)Math.floor(pts[1]),
+			(int)Math.ceil(pts[2]),
+			(int)Math.ceil(pts[3])
+			);
+	}
+
 	@Override
 	public void onDraw(Canvas canvas)
 	{
@@ -305,8 +322,8 @@ public class MicropolisView extends View
 
 	private void onTileChanged(int xpos, int ypos)
 	{
-		//TODO- only invalidate the area where this tile is drawn
-		invalidate();
+		Rect r = getTileBounds(xpos, ypos);
+		invalidate(r);
 	}
 
 	@Override
