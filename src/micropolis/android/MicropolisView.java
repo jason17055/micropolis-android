@@ -233,6 +233,7 @@ public class MicropolisView extends View
 
 				originX = s.getCurrX();
 				originY = s.getCurrY();
+				updateRenderMatrix();
 				invalidate();
 
 				if (!activ) {
