@@ -61,6 +61,7 @@ public class MainActivity extends Activity
 
 		city.addListener(this);
 		getMicropolisView().setCity(city);
+		getDemandIndicator().setCity(city);
 	}
 
 	@Override
@@ -116,6 +117,12 @@ public class MainActivity extends Activity
 	{
 		MicropolisView view = (MicropolisView) findViewById(R.id.main_view);
 		return view;
+	}
+
+	DemandView getDemandIndicator()
+	{
+		return (DemandView)
+			findViewById(R.id.demand_ind);
 	}
 
 	class MyAdvancer implements Runnable
