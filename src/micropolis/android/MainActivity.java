@@ -9,12 +9,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Calendar;
+import java.util.ResourceBundle;
 
 import micropolisj.engine.*;
 
@@ -281,9 +283,16 @@ public class MainActivity extends Activity
 		}
 	}
 
+	static ResourceBundle cityMessageStrings = ResourceBundle.getBundle("micropolisj.CityMessages");
+
 	// implements Micropolis.Listener
 	public void cityMessage(MicropolisMessage message, CityLocation loc, boolean isPic)
 	{
+		String s = cityMessageStrings.getString(message.name());
+		Toast.makeText(this,
+			s,
+			Toast.LENGTH_SHORT
+			).show();
 	}
 
 	// implements Micropolis.Listener
