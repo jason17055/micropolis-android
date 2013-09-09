@@ -12,4 +12,10 @@
 	<!-- PickBuilding Dialog -->
 	<string name="pickbuilding_caption">Choose Building</string>
 	<string name="cancel">Cancel</string>
+
+	<string-array name="levels_array">
+		<item>Easy</item>
+		<item>Medium</item>
+		<item>Hard</item>
+	</string-array>
 </resources>

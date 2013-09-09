@@ -26,6 +26,7 @@
 	android:layout_height="wrap_content"
 	android:text="Start New City"
 	android:gravity="center"
+	android:onClick="startNewCity"
 	/>
 
 <!--

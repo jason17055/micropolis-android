@@ -23,6 +23,10 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="micropolis.android.NewCityActivity"
+            android:label="Start New City" >
+        </activity>
+        <activity
             android:name="micropolis.android.MainActivity"
             android:label="@string/app_name" >
         </activity>
