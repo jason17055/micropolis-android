@@ -42,6 +42,7 @@
 	android:layout_height="wrap_content"
 	android:text="Play This Map"
 	android:gravity="center"
+	android:onClick="playThisMapClicked"
 	/>
 
 </LinearLayout>
