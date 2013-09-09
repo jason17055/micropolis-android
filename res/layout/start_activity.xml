@@ -1,0 +1,46 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	>
+
+<ImageView
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:layout_weight="1"
+	android:gravity="fill"
+	android:src="@drawable/ic_launcher"
+	android:adjustViewBounds="true"
+	/>
+
+<!--
+<Button
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:text="Tutorial"
+	android:gravity="center"
+	/>
+-->
+<Button
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:text="Start New City"
+	android:gravity="center"
+	/>
+
+<!--
+<Button
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:text="Resume Old City"
+	android:gravity="center"
+	/>
+<Button
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:text="Select Scenario"
+	android:gravity="center"
+	/>
+-->
+
+</LinearLayout>
