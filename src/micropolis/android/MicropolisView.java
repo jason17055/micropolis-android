@@ -156,8 +156,8 @@ public class MicropolisView extends View
 		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
 		{
-			originX += distanceX;
-			originY += distanceY;
+			originX += distanceX / scaleFactor;
+			originY += distanceY / scaleFactor;
 
 			if (originX < scrollBounds.left) {
 				originX = scrollBounds.left;
@@ -181,7 +181,7 @@ public class MicropolisView extends View
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
 		{
-			startMomentum(velocityX, velocityY);
+			startMomentum(velocityX / scaleFactor, velocityY / scaleFactor);
 			return true;
 		}
 
