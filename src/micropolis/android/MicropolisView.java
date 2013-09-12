@@ -20,6 +20,9 @@ public class MicropolisView extends View
 	Rect scrollBounds = new Rect();
 	Matrix renderMatrix = new Matrix();
 
+	int windowWidth;
+	int windowHeight;
+
 	int tileSize = 32;
 	float originX = 0.0f;
 	float originY = 0.0f;
@@ -41,6 +44,11 @@ public class MicropolisView extends View
 	{
 		this.city = newCity;
 
+		scrollBounds.left = 0;
+		scrollBounds.top = 0;
+		scrollBounds.right = tileSize*city.getWidth();
+		scrollBounds.bottom = tileSize*city.getHeight();
+
 		city.addMapListener(new MapListener() {
 			public void mapOverlayDataChanged(MapState overlayDataType) {}
 			public void spriteMoved(Sprite sprite) {}
@@ -56,10 +64,10 @@ public class MicropolisView extends View
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh)
 	{
-		scrollBounds.left = -(w/2);
-		scrollBounds.top = -(h/2);
-		scrollBounds.right = scrollBounds.left + tileSize*city.getWidth();
-		scrollBounds.bottom = scrollBounds.top + tileSize*city.getHeight();
+		windowWidth = w;
+		windowHeight = h;
+
+		updateRenderMatrix();
 	}
 
 	private void loadTilesBitmap()
@@ -80,6 +88,7 @@ public class MicropolisView extends View
 	private void updateRenderMatrix()
 	{
 		renderMatrix.reset();
+		renderMatrix.preTranslate(windowWidth/2, windowHeight/2);
 		if (scaleFactor != 1.0f) {
 			renderMatrix.preScale(scaleFactor, scaleFactor, scaleFocusX, scaleFocusY);
 		}
@@ -195,8 +204,8 @@ public class MicropolisView extends View
 		// implements OnScaleGestureListener
 		public boolean onScale(ScaleGestureDetector d)
 		{
-			scaleFocusX = d.getFocusX();
-			scaleFocusY = d.getFocusY();
+			scaleFocusX = d.getFocusX() - windowWidth/2;
+			scaleFocusY = d.getFocusY() - windowHeight/2;
 			scaleFactor *= d.getScaleFactor();
 			scaleFactor = Math.min(Math.max(scaleFactor, 0.5f), 2.0f);
 			updateRenderMatrix();
