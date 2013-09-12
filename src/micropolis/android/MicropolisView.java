@@ -49,6 +49,9 @@ public class MicropolisView extends View
 		scrollBounds.right = tileSize*city.getWidth();
 		scrollBounds.bottom = tileSize*city.getHeight();
 
+		originX = (scrollBounds.left + scrollBounds.right) / 2.0f;
+		originY = (scrollBounds.top + scrollBounds.bottom) / 2.0f;
+
 		city.addMapListener(new MapListener() {
 			public void mapOverlayDataChanged(MapState overlayDataType) {}
 			public void spriteMoved(Sprite sprite) {}
