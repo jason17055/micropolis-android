@@ -75,6 +75,8 @@ public class DemandView extends View
 		if (this.city == null)
 			return;
 
+		float pixelScale = getResources().getDisplayMetrics().density;
+
 		int resValve = city.getResValve();
 		int ry0 = resValve <= 0 ? LOWER_EDGE : UPPER_EDGE;
 		int ry1 = ry0 - resValve / 100;
@@ -92,16 +94,21 @@ public class DemandView extends View
 
 		if (ry0 != ry1) {
 			Rect resRect = new Rect(
-					RES_LEFT, Math.min(ry0, ry1),
-					RES_RIGHT, Math.max(ry0, ry1));
+				Math.round(RES_LEFT*pixelScale),
+				Math.round(Math.min(ry0, ry1)*pixelScale),
+				Math.round(RES_RIGHT*pixelScale),
+				Math.round(Math.max(ry0, ry1)*pixelScale)
+				);
 			canvas.drawRect(resRect, resPaint);
 			canvas.drawRect(resRect, outlinePaint);
 		}
 
 		if (cy0 != cy1) {
 			Rect comRect = new Rect(
-					COM_LEFT, Math.min(cy0, cy1),
-					COM_RIGHT, Math.max(cy0, cy1)
+				Math.round(COM_LEFT*pixelScale),
+				Math.round(Math.min(cy0, cy1)*pixelScale),
+				Math.round(COM_RIGHT*pixelScale),
+				Math.round(Math.max(cy0, cy1)*pixelScale)
 				);
 			canvas.drawRect(comRect, comPaint);
 			canvas.drawRect(comRect, outlinePaint);
@@ -109,8 +116,10 @@ public class DemandView extends View
 
 		if (iy0 != iy1) {
 			Rect indRect = new Rect(
-					IND_LEFT, Math.min(iy0, iy1),
-					IND_RIGHT, Math.max(iy0, iy1)
+				Math.round(IND_LEFT*pixelScale),
+				Math.round(Math.min(iy0, iy1)*pixelScale),
+				Math.round(IND_RIGHT*pixelScale),
+				Math.round(Math.max(iy0, iy1)*pixelScale)
 				);
 			canvas.drawRect(indRect, indPaint);
 			canvas.drawRect(indRect, outlinePaint);
