@@ -56,14 +56,14 @@
 		<ImageButton android:id="@+id/bulldozer_tool_btn"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:src="@drawable/icdozr"
+			android:src="@drawable/ic_dozer"
 			android:onClick="onBulldozerToolClicked"
 			/>
 
 		<ImageButton android:id="@+id/road_tool_btn"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:src="@drawable/icroad"
+			android:src="@drawable/ic_transport"
 			android:onClick="onRoadToolClicked"
 			/>
 
@@ -84,7 +84,7 @@
 		<ImageButton android:id="@+id/res_tool_btn"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:src="@drawable/icres"
+			android:src="@drawable/ic_zones"
 			android:onClick="onResZoneToolClicked"
 			/>
 
@@ -105,7 +105,7 @@
 		<ImageButton android:id="@+id/coal_tool_btn"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:src="@drawable/iccoal"
+			android:src="@drawable/ic_buildings"
 			android:onClick="onCoalToolClicked"
 			/>
 
