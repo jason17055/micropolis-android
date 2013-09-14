@@ -164,12 +164,14 @@ public class MainActivity extends Activity
 	private void setToolsVisibility(int v)
 	{
 		findViewById(R.id.bulldozer_tool_btn).setVisibility(v);
-		findViewById(R.id.road_tool_btn).setVisibility(v);
-		findViewById(R.id.rail_tool_btn).setVisibility(v);
-		findViewById(R.id.wire_tool_btn).setVisibility(v);
+		findViewById(R.id.transport_tool_btn).setVisibility(v);
 		findViewById(R.id.zones_tool_btn).setVisibility(v);
 		findViewById(R.id.buildings_tool_btn).setVisibility(v);
 
+		findViewById(R.id.transport_tool_btn).getBackground().clearColorFilter();
+		findViewById(R.id.zones_tool_btn).getBackground().clearColorFilter();
+
+		findViewById(R.id.transport_tools_submenu).setVisibility(View.GONE);
 		findViewById(R.id.zone_tools_submenu).setVisibility(View.GONE);
 	}
 
@@ -201,8 +203,16 @@ public class MainActivity extends Activity
 		setTool(MicropolisTool.WIRE);
 	}
 
+	public void onTransportToolClicked(View view)
+	{
+		setToolsVisibility(View.VISIBLE);
+		view.getBackground().setColorFilter(0xffffffff, PorterDuff.Mode.ADD);
+		findViewById(R.id.transport_tools_submenu).setVisibility(View.VISIBLE);
+	}
+
 	public void onZonesToolClicked(View view)
 	{
+		setToolsVisibility(View.VISIBLE);
 		view.getBackground().setColorFilter(0xffffffff, PorterDuff.Mode.ADD);
 		findViewById(R.id.zone_tools_submenu).setVisibility(View.VISIBLE);
 	}
