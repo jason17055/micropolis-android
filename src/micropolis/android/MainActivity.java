@@ -3,6 +3,7 @@ package micropolis.android;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
@@ -166,10 +167,10 @@ public class MainActivity extends Activity
 		findViewById(R.id.road_tool_btn).setVisibility(v);
 		findViewById(R.id.rail_tool_btn).setVisibility(v);
 		findViewById(R.id.wire_tool_btn).setVisibility(v);
-		findViewById(R.id.res_tool_btn).setVisibility(v);
-		findViewById(R.id.com_tool_btn).setVisibility(v);
-		findViewById(R.id.ind_tool_btn).setVisibility(v);
-		findViewById(R.id.coal_tool_btn).setVisibility(v);
+		findViewById(R.id.zones_tool_btn).setVisibility(v);
+		findViewById(R.id.buildings_tool_btn).setVisibility(v);
+
+		findViewById(R.id.zone_tools_submenu).setVisibility(View.GONE);
 	}
 
 	public void onBulldozerToolClicked(View view)
@@ -198,6 +199,12 @@ public class MainActivity extends Activity
 		setToolsVisibility(View.GONE);
 		findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
 		setTool(MicropolisTool.WIRE);
+	}
+
+	public void onZonesToolClicked(View view)
+	{
+		view.getBackground().setColorFilter(0xffffffff, PorterDuff.Mode.ADD);
+		findViewById(R.id.zone_tools_submenu).setVisibility(View.VISIBLE);
 	}
 
 	public void onResZoneToolClicked(View view)
