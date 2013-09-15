@@ -27,12 +27,27 @@
 			android:text=""
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:background="@drawable/date_ind"
+			android:textColor="#000"
+			android:gravity="right|center_vertical"
+			/>
+
+		<TextView android:id="@+id/pop_ind"
+			android:text="0"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:background="@drawable/pop_ind"
+			android:textColor="#000"
+			android:gravity="right|center_vertical"
 			/>
 
 		<TextView android:id="@+id/funds_ind"
-			android:text="@string/funds_ind_val"
+			android:text="0"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:background="@drawable/funds_ind"
+			android:textColor="#000"
+			android:gravity="right|center_vertical"
 			/>
 
 		<micropolis.android.DemandView

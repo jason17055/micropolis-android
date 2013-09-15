@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.ResourceBundle;
 
@@ -334,7 +335,8 @@ public class MainActivity extends Activity
 	{
 		TextView fundsInd = (TextView) findViewById(R.id.funds_ind);
 		if (fundsInd != null) {
-			fundsInd.setText("Funds: "+city.budget.totalFunds);
+			NumberFormat nf = NumberFormat.getInstance();
+			fundsInd.setText(nf.format(city.budget.totalFunds));
 		}
 	}
 
@@ -353,10 +355,17 @@ public class MainActivity extends Activity
 
 	private void updateDateLabel()
 	{
-		String s = formatGameDate(city.cityTime);
 		TextView dateInd = (TextView) findViewById(R.id.date_ind);
-		if (dateInd == null) return;
+		if (dateInd != null) {
+			String s = formatGameDate(city.cityTime);
+			dateInd.setText(s);
+		}
 
-		dateInd.setText(s);
+		TextView popLbl = (TextView) findViewById(R.id.pop_ind);
+		if (popLbl != null) {
+			NumberFormat nf = NumberFormat.getInstance();
+			String t = nf.format(city.getCityPopulation());
+			popLbl.setText(t);
+		}
 	}
 }
