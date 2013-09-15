@@ -66,6 +66,8 @@ public class MainActivity extends Activity
 		city.addListener(this);
 		getMicropolisView().setCity(city);
 		getDemandIndicator().setCity(city);
+		updateDateLabel();
+		fundsChanged();
 	}
 
 	@Override
