@@ -31,6 +31,9 @@ public class MicropolisView extends View
 	float scaleFocusY = 0.0f;
 	float scaleFactor = 1.0f;
 
+	static final int SLICE_COUNT = 16;
+	static final int SLICE_SIZE = 64;
+
 	MicropolisTool currentTool = null;
 
 	public MicropolisView(Context context, AttributeSet attrs)
@@ -78,14 +81,27 @@ public class MicropolisView extends View
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 
-		this.tilesBitmap = new Bitmap[32];
+		this.tilesBitmap = new Bitmap[SLICE_COUNT];
 		for (int i = 0; i < tilesBitmap.length; i++) {
-			String s = String.format("tiles%02d", i);
+			String s = String.format("tiles%d_%02d", tileSize, i);
 			int rid = getResources().getIdentifier(s, "drawable", "micropolis.android");
 			tilesBitmap[i] = BitmapFactory.decodeResource(
 					getResources(), rid, options
 					);
 		}
+	}
+
+	public void setTileSize(int newSize)
+	{
+		double f = ((double)newSize) / ((double)tileSize);
+		scaleFactor /= f;
+		originX *= f;
+		originY *= f;
+
+		this.tileSize = newSize;
+		loadTilesBitmap();
+		updateRenderMatrix();	
+		invalidate();
 	}
 
 	private void updateRenderMatrix()
@@ -137,9 +153,9 @@ public class MicropolisView extends View
 		for (int y = minY; y < maxY; y++) {
 			for (int x = minX; x < maxX; x++) {
 				int t = city.getTile(x, y) & TileConstants.LOMASK;
-				int tz = t % 32;
+				int tz = t % SLICE_SIZE;
 
-				canvas.drawBitmap(tilesBitmap[t/32],
+				canvas.drawBitmap(tilesBitmap[(t/SLICE_SIZE)%SLICE_COUNT],
 					new Rect(0, tz*tileSize, tileSize, tz*tileSize+tileSize),
 					new Rect(x*tileSize, y*tileSize, x*tileSize+tileSize, y*tileSize+tileSize),
 					p);
@@ -225,6 +241,12 @@ public class MicropolisView extends View
 		// implements OnScaleGestureListener
 		public void onScaleEnd(ScaleGestureDetector d)
 		{
+			if (tileSize == 32 && scaleFactor < 0.51) {
+				setTileSize(8);
+			}
+			else if (tileSize == 8 && scaleFactor > 1.99) {
+				setTileSize(32);
+			}
 		}
 	}
 	MyGestureListener mgl = new MyGestureListener();
@@ -239,7 +261,7 @@ public class MicropolisView extends View
 		return x1 || x2;
 	}
 
-	MyScrollStep activeScroller = null;
+	Runnable activeScroller = null;
 	Handler myHandler = new Handler();
 
 	class MyScrollStep implements Runnable
