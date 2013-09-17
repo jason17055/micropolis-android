@@ -23,11 +23,11 @@
 		android:text="LEFT"
 		android:gravity="center"
 		/>
-	<Button
+	<micropolis.android.MicropolisView
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_weight="1"
-		android:text="MAP"
+		android:id="@+id/new_city_preview"
 		/>
 	<Button
 		android:layout_width="wrap_content"

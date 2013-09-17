@@ -1,5 +1,7 @@
 package micropolis.android;
 
+import micropolisj.engine.*;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +10,8 @@ import android.widget.*;
 
 public class NewCityActivity extends Activity
 {
+	Micropolis curCity;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -22,6 +26,18 @@ public class NewCityActivity extends Activity
 				android.R.layout.simple_spinner_item);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		levelSpinner.setAdapter(adapter);
+
+		curCity = new Micropolis();
+		new MapGenerator(curCity).generateNewCity();
+
+		MicropolisView v = getNewCityPreview();
+		v.setCity(curCity);
+		v.setTileSize(8);
+	}
+
+	MicropolisView getNewCityPreview()
+	{
+		return (MicropolisView) findViewById(R.id.new_city_preview);
 	}
 
 	public void playThisMapClicked(View btn)
