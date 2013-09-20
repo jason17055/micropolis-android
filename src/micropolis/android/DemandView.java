@@ -44,14 +44,14 @@ public class DemandView extends View
 	}
 
 	static final int UPPER_EDGE = 19;
-	static final int LOWER_EDGE = 28;
+	static final int LOWER_EDGE = 29;
 	static final int MAX_LENGTH = 16;
-	static final int RES_LEFT = 8;
-	static final int RES_RIGHT = 8+6;
-	static final int COM_LEFT = 17;
-	static final int COM_RIGHT = 17+6;
-	static final int IND_LEFT = 26;
-	static final int IND_RIGHT = 26+6;
+	static final int RES_LEFT = 9;
+	static final int RES_RIGHT = RES_LEFT+6;
+	static final int COM_LEFT = 18;
+	static final int COM_RIGHT = COM_LEFT+6;
+	static final int IND_LEFT = 27;
+	static final int IND_RIGHT = IND_LEFT+6;
 	static final Paint resPaint = new Paint();
 	static final Paint comPaint = new Paint();
 	static final Paint indPaint = new Paint();
