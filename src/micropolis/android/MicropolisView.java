@@ -16,13 +16,13 @@ import android.widget.OverScroller;
 public class MicropolisView extends View
 {
 	Micropolis city;
-	Bitmap [] tilesBitmap;
 	Rect scrollBounds = new Rect();
 	Matrix renderMatrix = new Matrix();
 
 	int windowWidth;
 	int windowHeight;
 
+	TileHelper tiles;
 	int tileSize = 32;
 	float originX = 0.0f;
 	float originY = 0.0f;
@@ -31,16 +31,13 @@ public class MicropolisView extends View
 	float scaleFocusY = 0.0f;
 	float scaleFactor = 1.0f;
 
-	static final int SLICE_COUNT = 16;
-	static final int SLICE_SIZE = 64;
-
 	MicropolisTool currentTool = null;
 
 	public MicropolisView(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
 
-		loadTilesBitmap();
+		tiles = new TileHelper(context, tileSize);
 	}
 
 	public void setCity(Micropolis newCity)
@@ -76,21 +73,6 @@ public class MicropolisView extends View
 		updateRenderMatrix();
 	}
 
-	private void loadTilesBitmap()
-	{
-		BitmapFactory.Options options = new BitmapFactory.Options();
-		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-
-		this.tilesBitmap = new Bitmap[SLICE_COUNT];
-		for (int i = 0; i < tilesBitmap.length; i++) {
-			String s = String.format("tiles%d_%02d", tileSize, i);
-			int rid = getResources().getIdentifier(s, "drawable", "micropolis.android");
-			tilesBitmap[i] = BitmapFactory.decodeResource(
-					getResources(), rid, options
-					);
-		}
-	}
-
 	public void setTileSize(int newSize)
 	{
 		double f = ((double)newSize) / ((double)tileSize);
@@ -99,7 +81,7 @@ public class MicropolisView extends View
 		originY *= f;
 
 		this.tileSize = newSize;
-		loadTilesBitmap();
+		tiles.changeTileSize(tileSize);
 		updateRenderMatrix();	
 		invalidate();
 	}
@@ -153,12 +135,7 @@ public class MicropolisView extends View
 		for (int y = minY; y < maxY; y++) {
 			for (int x = minX; x < maxX; x++) {
 				int t = city.getTile(x, y) & TileConstants.LOMASK;
-				int tz = t % SLICE_SIZE;
-
-				canvas.drawBitmap(tilesBitmap[(t/SLICE_SIZE)%SLICE_COUNT],
-					new Rect(0, tz*tileSize, tileSize, tz*tileSize+tileSize),
-					new Rect(x*tileSize, y*tileSize, x*tileSize+tileSize, y*tileSize+tileSize),
-					p);
+				tiles.drawTo(canvas, t, x, y);
 			}
 		}
 
