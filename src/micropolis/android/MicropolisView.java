@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.view.*;
 import android.widget.OverScroller;
+import android.widget.Toast;
 
 public class MicropolisView extends View
 {
@@ -24,8 +25,12 @@ public class MicropolisView extends View
 
 	TileHelper tiles;
 	int tileSize = 32;
+	static final int MIN_TILE_SIZE = 8;
+	static final int MAX_TILE_SIZE = 32;
 	float originX = 0.0f;
 	float originY = 0.0f;
+
+	static final float SCALE_MOMENTUM_FACTOR = 0.9f;
 
 	float scaleFocusX = 0.0f;
 	float scaleFocusY = 0.0f;
@@ -174,6 +179,7 @@ public class MicropolisView extends View
 
 			updateRenderMatrix();
 			invalidate();
+
 			return true;
 		}
 
@@ -212,12 +218,7 @@ public class MicropolisView extends View
 		// implements OnScaleGestureListener
 		public void onScaleEnd(ScaleGestureDetector d)
 		{
-			if (tileSize == 32 && scaleFactor < 0.51) {
-				setTileSize(8);
-			}
-			else if (tileSize == 8 && scaleFactor > 1.99) {
-				setTileSize(32);
-			}
+			checkZoomLevel();
 		}
 	}
 	MyGestureListener mgl = new MyGestureListener();
@@ -232,10 +233,15 @@ public class MicropolisView extends View
 		return x1 || x2;
 	}
 
-	Runnable activeMotion = null;
+	MyMomentumStep activeMotion = null;
 	Handler myHandler = new Handler();
 
-	class MyScrollStep implements Runnable
+	interface MyMomentumStep extends Runnable
+	{
+		void cancelMomentum();
+	}
+
+	class MyScrollStep implements MyMomentumStep
 	{
 		OverScroller s = new OverScroller(getContext());
 
@@ -247,6 +253,13 @@ public class MicropolisView extends View
 				tileSize*4, tileSize*4);
 		}
 
+		// implements MyMomentumStep
+		public void cancelMomentum()
+		{
+			// do nothing
+		}
+
+		// implements Runnable
 		public void run()
 		{
 			if (activeMotion == this) {
@@ -260,6 +273,7 @@ public class MicropolisView extends View
 
 				if (!activ) {
 					activeMotion = null;
+					completeScrollMomentum();
 				}
 				else {
 					myHandler.postDelayed(this, 100);
@@ -274,6 +288,91 @@ public class MicropolisView extends View
 		}
 	}
 
+	class MyZoomStep implements MyMomentumStep
+	{
+		float targetFactor;
+		MyZoomStep(float targetFactor)
+		{
+			this.targetFactor = targetFactor;
+		}
+
+		// implements MyMomentumStep
+		public void cancelMomentum()
+		{
+			scaleFactor = targetFactor;
+			updateRenderMatrix();
+			invalidate();
+
+			activeMotion = null;
+			completeZoomMomentum(targetFactor);
+		}
+
+		// implements Runnable
+		public void run()
+		{
+			if (activeMotion == this) {
+
+				if (targetFactor < scaleFactor) {
+
+					scaleFactor = Math.max(targetFactor, scaleFactor * SCALE_MOMENTUM_FACTOR);
+				}
+				else if (targetFactor > scaleFactor) {
+
+					scaleFactor = Math.min(targetFactor, scaleFactor / SCALE_MOMENTUM_FACTOR);
+				}
+				updateRenderMatrix();
+				invalidate();
+
+				if (targetFactor == scaleFactor) {
+					activeMotion = null;
+					completeZoomMomentum(targetFactor);
+				}
+				else {
+					myHandler.postDelayed(this, 100);
+				}
+			}
+		}
+	}
+
+	private void checkZoomLevel()
+	{
+		if (scaleFactor > 1.414214) {
+			startZoomMomentum(2.0f);
+		}
+		else if (scaleFactor < 0.707107) {
+			startZoomMomentum(0.5f);
+		}
+		else {
+			startZoomMomentum(1.0f);
+		}
+	}
+
+	private void startZoomMomentum(float targetFactor)
+	{
+		if (scaleFactor != targetFactor) {
+			this.activeMotion = new MyZoomStep(targetFactor);
+			myHandler.postDelayed(activeMotion, 0);
+		}
+		else {
+			completeZoomMomentum(targetFactor);
+		}
+	}
+
+	private void completeZoomMomentum(float targetFactor)
+	{
+		if (tileSize > MIN_TILE_SIZE && targetFactor == 0.5) {
+			setTileSize(tileSize/2);
+		}
+		else if (tileSize < MAX_TILE_SIZE && targetFactor == 2.0) {
+			setTileSize(tileSize*2);
+		}
+	}
+
+	private void completeScrollMomentum()
+	{
+		checkZoomLevel();
+	}
+
 	private void startMomentum(float velX, float velY)
 	{
 		this.activeMotion = new MyScrollStep(velX, velY);
@@ -282,7 +381,10 @@ public class MicropolisView extends View
 
 	private void stopMomentum()
 	{
-		this.activeMotion = null;
+		if (this.activeMotion != null) {
+			activeMotion.cancelMomentum();
+			this.activeMotion = null;
+		}
 	}
 
 	private void processTool(float x, float y)
