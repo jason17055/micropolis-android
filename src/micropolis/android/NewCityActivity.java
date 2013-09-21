@@ -33,6 +33,8 @@ public class NewCityActivity extends Activity
 		MicropolisView v = getNewCityPreview();
 		v.setCity(curCity);
 		v.setTileSize(8);
+		v.allowTouchMotion = false;
+		v.scaleFactor = 0.5f;
 	}
 
 	MicropolisView getNewCityPreview()

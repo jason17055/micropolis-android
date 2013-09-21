@@ -36,6 +36,7 @@ public class MicropolisView extends View
 	float scaleFocusY = 0.0f;
 	float scaleFactor = 1.0f;
 
+	boolean allowTouchMotion = true;
 	MicropolisTool currentTool = null;
 
 	public MicropolisView(Context context, AttributeSet attrs)
@@ -234,9 +235,14 @@ public class MicropolisView extends View
 	@Override
 	public boolean onTouchEvent(MotionEvent evt)
 	{
-		boolean x1 = gestDetector.onTouchEvent(evt);
-		boolean x2 = scaleDetector.onTouchEvent(evt);
-		return x1 || x2;
+		if (allowTouchMotion) {
+			boolean x1 = gestDetector.onTouchEvent(evt);
+			boolean x2 = scaleDetector.onTouchEvent(evt);
+			return x1 || x2;
+		}
+		else {
+			return false;
+		}
 	}
 
 	MyMomentumStep activeMotion = null;
