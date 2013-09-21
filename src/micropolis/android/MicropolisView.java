@@ -98,7 +98,7 @@ public class MicropolisView extends View
 		if (scaleFactor != 1.0f) {
 			renderMatrix.preScale(scaleFactor, scaleFactor, scaleFocusX, scaleFocusY);
 		}
-		renderMatrix.preTranslate(-originX, -originY);
+		renderMatrix.preTranslate(Math.round(-originX), Math.round(-originY));
 	}
 
 	Rect getTileBounds(int xpos, int ypos)
