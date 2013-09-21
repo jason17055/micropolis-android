@@ -3,6 +3,7 @@ package micropolis.android;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
@@ -29,6 +31,8 @@ public class MainActivity extends Activity
 	Micropolis city;
 
 	static final String ST_MICROPOLIS = "micropolis.city";
+	/** Used in Intent. */
+	static final String EXTRA_CITY_NAME = "micropolis.cityName";
 
 	private boolean restoreCity(Bundle st)
 	{
@@ -58,9 +62,8 @@ public class MainActivity extends Activity
 		setContentView(R.layout.activity_main);
 
 		if (!restoreCity(savedInstanceState)) {
-			this.city = new Micropolis();
-			new MapGenerator(city).generateNewCity();
-			city.setFunds(20000);
+
+			loadCityFromIntent();
 		}
 
 		city.addListener(this);
@@ -68,6 +71,29 @@ public class MainActivity extends Activity
 		getDemandIndicator().setCity(city);
 		updateDateLabel();
 		fundsChanged();
+	}
+
+	private void loadCityFromIntent()
+	{
+		this.city = new Micropolis();
+
+		Intent intent = getIntent();
+		String cityName = intent.getStringExtra(EXTRA_CITY_NAME);
+		if (cityName != null) {
+
+			File f = new File(getFilesDir(), cityName);
+			try {
+				city.load(f);
+			}
+			catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+
+		}
+		else {
+			new MapGenerator(city).generateNewCity();
+			city.setFunds(20000);
+		}
 	}
 
 	@Override
@@ -300,6 +326,23 @@ public class MainActivity extends Activity
 		MicropolisTool currentTool = getMicropolisView().currentTool;
 		if (currentTool != null) {
 			st.putString("currentTool", currentTool.name());
+		}
+	}
+
+	@Override
+	protected void onStop()
+	{
+		super.onStop();
+
+		try
+		{
+		File saveFile = new File(getFilesDir(), "current.cty");
+		city.save(saveFile);
+		}
+		catch (IOException e)
+		{
+			// unexpected for internal storage
+			throw new RuntimeException(e);
 		}
 	}
 

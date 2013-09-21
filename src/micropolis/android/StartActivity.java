@@ -20,4 +20,12 @@ public class StartActivity extends Activity
 		Intent intent = new Intent(this, NewCityActivity.class);
 		startActivity(intent);
 	}
+
+	/** Called when the user clicks Resume Old City button. */
+	public void resumeOldCity(View btn)
+	{
+		Intent intent = new Intent(this, MainActivity.class);
+		intent.putExtra(MainActivity.EXTRA_CITY_NAME, "current.cty");
+		startActivity(intent);
+	}
 }

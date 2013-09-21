@@ -29,13 +29,14 @@
 	android:onClick="startNewCity"
 	/>
 
-<!--
 <Button
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:text="Resume Old City"
 	android:gravity="center"
+	android:onClick="resumeOldCity"
 	/>
+<!--
 <Button
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
