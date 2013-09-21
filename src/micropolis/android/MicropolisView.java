@@ -49,10 +49,7 @@ public class MicropolisView extends View
 	{
 		this.city = newCity;
 
-		scrollBounds.left = 0;
-		scrollBounds.top = 0;
-		scrollBounds.right = tileSize*city.getWidth();
-		scrollBounds.bottom = tileSize*city.getHeight();
+		updateScrollBounds();
 
 		originX = (scrollBounds.left + scrollBounds.right) / 2.0f;
 		originY = (scrollBounds.top + scrollBounds.bottom) / 2.0f;
@@ -87,6 +84,7 @@ public class MicropolisView extends View
 
 		this.tileSize = newSize;
 		tiles.changeTileSize(tileSize);
+		updateScrollBounds();
 		updateRenderMatrix();	
 		invalidate();
 	}
@@ -99,6 +97,14 @@ public class MicropolisView extends View
 			renderMatrix.preScale(scaleFactor, scaleFactor, scaleFocusX, scaleFocusY);
 		}
 		renderMatrix.preTranslate(Math.round(-originX), Math.round(-originY));
+	}
+
+	private void updateScrollBounds()
+	{
+		scrollBounds.left = 0;
+		scrollBounds.top = 0;
+		scrollBounds.right = tileSize*city.getWidth();
+		scrollBounds.bottom = tileSize*city.getHeight();
 	}
 
 	Rect getTileBounds(int xpos, int ypos)
