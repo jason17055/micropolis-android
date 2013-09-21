@@ -140,12 +140,6 @@ public class MicropolisView extends View
 		}
 
 		canvas.restore();
-//		if (activeScroller != null) {
-//			String s = "Scroller: " + activeScroller.toString();
-//			canvas.drawText(s,
-//				0.0f, 25.0f,
-//				p);
-//		}
 	}
 
 	class MyGestureListener extends GestureDetector.SimpleOnGestureListener
@@ -238,7 +232,7 @@ public class MicropolisView extends View
 		return x1 || x2;
 	}
 
-	Runnable activeScroller = null;
+	Runnable activeMotion = null;
 	Handler myHandler = new Handler();
 
 	class MyScrollStep implements Runnable
@@ -255,7 +249,7 @@ public class MicropolisView extends View
 
 		public void run()
 		{
-			if (activeScroller == this) {
+			if (activeMotion == this) {
 
 				boolean activ = s.computeScrollOffset();
 
@@ -265,7 +259,7 @@ public class MicropolisView extends View
 				invalidate();
 
 				if (!activ) {
-					activeScroller = null;
+					activeMotion = null;
 				}
 				else {
 					myHandler.postDelayed(this, 100);
@@ -282,13 +276,13 @@ public class MicropolisView extends View
 
 	private void startMomentum(float velX, float velY)
 	{
-		this.activeScroller = new MyScrollStep(velX, velY);
-		myHandler.postDelayed(activeScroller, 100);
+		this.activeMotion = new MyScrollStep(velX, velY);
+		myHandler.postDelayed(activeMotion, 100);
 	}
 
 	private void stopMomentum()
 	{
-		this.activeScroller = null;
+		this.activeMotion = null;
 	}
 
 	private void processTool(float x, float y)
