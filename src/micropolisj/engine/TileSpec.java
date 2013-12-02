@@ -1,3 +1,11 @@
+// This file is part of MicropolisJ.
+// Copyright (C) 2013 Jason Long
+// Portions Copyright (C) 1989-2007 Electronic Arts Inc.
+//
+// MicropolisJ is free software; you can redistribute it and/or modify
+// it under the terms of the GNU GPLv3, with additional terms.
+// See the README file, included in this distribution, for details.
+
 package micropolisj.engine;
 
 import java.util.*;
@@ -10,6 +18,7 @@ public class TileSpec
 	TileSpec onShutdown;
 	boolean canBurn;
 	boolean canConduct;
+	boolean overWater;
 	boolean zone;
 	public TileSpec owner;
 	public int ownerOffsetX;
@@ -170,6 +179,7 @@ public class TileSpec
 
 		this.canBurn = !getBooleanAttribute("noburn");
 		this.canConduct = getBooleanAttribute("conducts");
+		this.overWater = getBooleanAttribute("overwater");
 		this.zone = getBooleanAttribute("zone");
 	}
 

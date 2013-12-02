@@ -11,36 +11,27 @@ package micropolisj.engine;
 import java.util.*;
 
 import static micropolisj.engine.TileConstants.*;
-import static micropolisj.engine.Micropolis.ZoneType;
+import static micropolisj.engine.TrafficGen.ZoneType;
 
 /**
  * Process individual tiles of the map for each cycle.
  * In each sim cycle each tile will get activated, and this
  * class contains the activation code.
  */
-class MapScanner
+class MapScanner extends TileBehavior
 {
-	final Micropolis city;
-	final Random PRNG;
-	int xpos;
-	int ypos;
-	char cchr;
-	char cchr9;
+	final B behavior;
+	TrafficGen traffic;
 
-	MapScanner(Micropolis city)
+	MapScanner(Micropolis city, B behavior)
 	{
-		this.city = city;
-		this.PRNG = city.PRNG;
+		super(city);
+		this.behavior = behavior;
+		this.traffic = new TrafficGen(city);
 	}
 
-	static enum TileBehavior
+	public static enum B
 	{
-		FIRE,
-		FLOOD,
-		RADIOACTIVE,
-		ROAD,
-		RAIL,
-		EXPLOSION,
 		RESIDENTIAL,
 		HOSPITAL_CHURCH,
 		COMMERCIAL,
@@ -55,38 +46,10 @@ class MapScanner
 		SEAPORT;
 	}
 
-	/**
-	 * Activate the tile identified by xpos and ypos properties.
-	 */
-	public void scanTile()
+	@Override
+	public void apply()
 	{
-		cchr9 = (char) (cchr & LOMASK);
-
-		String behaviorStr = getTileBehavior(cchr);
-		if (behaviorStr == null) {
-			return;
-		}
-
-		switch (TileBehavior.valueOf(behaviorStr)) {
-		case FIRE:
-			doFire();
-			return;
-		case FLOOD:
-			doFlood();
-			return;
-		case RADIOACTIVE:
-			doRadioactiveTile();
-			return;
-		case ROAD:
-			doRoad();
-			return;
-		case RAIL:
-			doRail();
-			return;
-		case EXPLOSION:
-			// clear AniRubble
-			city.setTile(xpos, ypos, (char)(RUBBLE + PRNG.nextInt(4) + BULLBIT));
-			return;
+		switch (behavior) {
 		case RESIDENTIAL:
 			doResidential();
 			return;
@@ -124,322 +87,8 @@ class MapScanner
 			doSeaport();
 			return;
 		default:
-			throw new Error("Unknown behavior: "+behaviorStr);
+			assert false;
 		}
-	}
-
-	/**
-	 * Called when the current tile is a radioactive tile.
-	 */
-	void doRadioactiveTile()
-	{
-		if (PRNG.nextInt(4096) == 0)
-		{
-			// radioactive decay
-			city.setTile(xpos, ypos, DIRT);
-		}
-	}
-
-	static int [] TRAFFIC_DENSITY_TAB = { ROADBASE, LTRFBASE, HTRFBASE };
-
-	/**
-	 * Called when the current tile is a road tile.
-	 */
-	void doRoad()
-	{
-		city.roadTotal++;
-
-		if (city.roadEffect < 30)
-		{
-			// deteriorating roads
-			if (PRNG.nextInt(512) == 0)
-			{
-				if (!isConductive(cchr))
-				{
-					if (city.roadEffect < PRNG.nextInt(32))
-					{
-						if (isOverWater(cchr))
-							city.setTile(xpos, ypos, RIVER);
-						else
-							city.setTile(xpos, ypos, (char)(RUBBLE + PRNG.nextInt(4) + BULLBIT));
-						return;
-					}
-				}
-			}
-		}
-
-		if (!isCombustible(cchr)) //bridge
-		{
-			city.roadTotal += 4;
-			if (doBridge())
-				return;
-		}
-
-		int tden;
-		if ((cchr & LOMASK) < LTRFBASE)
-			tden = 0;
-		else if ((cchr & LOMASK) < HTRFBASE)
-			tden = 1;
-		else {
-			city.roadTotal++;
-			tden = 2;
-		}
-
-		int trafficDensity = city.trfDensity[ypos/2][xpos/2];
-		int newLevel = trafficDensity < 64 ? 0 :
-			trafficDensity < 192 ? 1 : 2;
-		
-		assert newLevel >= 0 && newLevel < TRAFFIC_DENSITY_TAB.length;
-
-		if (tden != newLevel)
-		{
-			int z = (((cchr & LOMASK) - ROADBASE) & 15) + TRAFFIC_DENSITY_TAB[newLevel];
-			z += cchr & ALLBITS;
-
-			city.setTile(xpos, ypos, (char) z);
-		}
-	}
-
-	/**
-	 * Called when the current tile is an active fire.
-	 */
-	void doFire()
-	{
-		city.firePop++;
-
-		// one in four times
-		if (PRNG.nextInt(4) != 0) {
-			return;
-		}
-
-		final int [] DX = { 0, 1, 0, -1 };
-		final int [] DY = { -1, 0, 1, 0 };
-
-		for (int dir = 0; dir < 4; dir++)
-		{
-			if (PRNG.nextInt(8) == 0)
-			{
-				int xtem = xpos + DX[dir];
-				int ytem = ypos + DY[dir];
-				if (!city.testBounds(xtem, ytem))
-					continue;
-
-				int c = city.map[ytem][xtem];
-				if (isCombustible(c)) {
-					if (isZoneCenter(c)) {
-						city.killZone(xtem, ytem, c);
-						if ((c & LOMASK) > IZB) { //explode
-							city.makeExplosion(xtem, ytem);
-						}
-					}
-					city.setTile(xtem, ytem, (char)(FIRE + PRNG.nextInt(4)));
-				}
-			}
-		}
-
-		int cov = city.fireRate[ypos/8][xpos/8];  //fire station coverage
-		int rate = cov > 100 ? 1 :
-			cov > 20 ? 2 :
-			cov != 0 ? 3 : 10;
-
-		if (PRNG.nextInt(rate+1) == 0) {
-			city.setTile(xpos, ypos, (char)(RUBBLE + PRNG.nextInt(4) + BULLBIT));
-		}
-	}
-
-	/**
-	 * Called when the current tile is a flooding tile.
-	 */
-	void doFlood()
-	{
-		final int [] DX = { 0, 1, 0, -1 };
-		final int [] DY = { -1, 0, 1, 0 };
-
-		if (city.floodCnt != 0)
-		{
-			for (int z = 0; z < 4; z++)
-			{
-				if (PRNG.nextInt(8) == 0) {
-					int xx = xpos + DX[z];
-					int yy = ypos + DY[z];
-					if (city.testBounds(xx, yy)) {
-						int c = city.getTile(xx, yy);
-						int t = c & LOMASK;
-						if (isCombustible(c) || c == DIRT ||
-							(t >= WOODS5 && t < FLOOD))
-						{
-							if (isZoneCenter(c)) {
-								city.killZone(xx, yy, c);
-							}
-							city.setTile(xx, yy, (char)(FLOOD + PRNG.nextInt(3)));
-						}
-					}
-				}
-			}
-		}
-		else {
-			if (PRNG.nextInt(16) == 0) {
-				city.setTile(xpos, ypos, DIRT);
-			}
-		}
-	}
-
-	/**
-	 * Called when the current tile is railroad.
-	 */
-	void doRail()
-	{
-		city.railTotal++;
-		city.generateTrain(xpos, ypos);
-
-		if (city.roadEffect < 30) { // deteriorating rail
-			if (PRNG.nextInt(512) == 0) {
-				if (!isConductive(cchr)) {
-					if (city.roadEffect < PRNG.nextInt(32)) {
-						if (isOverWater(cchr)) {
-							city.setTile(xpos,ypos,RIVER);
-						} else {
-							city.setTile(xpos,ypos,(char)(RUBBLE + PRNG.nextInt(4)+BULLBIT));
-						}
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Called when the current tile is a road bridge over water.
-	 * Handles the draw bridge. For the draw bridge to appear,
-	 * there must be a boat on the water, the boat must be
-	 * within a certain distance of the bridge, it must be where
-	 * the map generator placed 'channel' tiles (these are tiles
-	 * that look just like regular river tiles but have a different
-	 * numeric value), and you must be a little lucky.
-	 *
-	 * @return true if the draw bridge is open; false otherwise
-	 */
-	boolean doBridge()
-	{
-		final int HDx[] = { -2,  2, -2, -1,  0,  1,  2 };
-		final int HDy[] = { -1, -1,  0,  0,  0,  0,  0 };
-		final char HBRTAB[] = {
-			HBRDG1 | BULLBIT,       HBRDG3 | BULLBIT,
-			HBRDG0 | BULLBIT,       RIVER,
-			BRWH | BULLBIT,         RIVER,
-			HBRDG2 | BULLBIT };
-		final char HBRTAB2[] = {
-			RIVER,                  RIVER,
-			HBRIDGE | BULLBIT,      HBRIDGE | BULLBIT,
-			HBRIDGE | BULLBIT,      HBRIDGE | BULLBIT,
-			HBRIDGE | BULLBIT };
-
-		final int VDx[] = {  0,  1,  0,  0,  0,  0,  1 };
-		final int VDy[] = { -2, -2, -1,  0,  1,  2,  2 };
-		final char VBRTAB[] = {
-			VBRDG0 | BULLBIT,       VBRDG1 | BULLBIT,
-			RIVER,                  BRWV | BULLBIT,
-			RIVER,                  VBRDG2 | BULLBIT,
-			VBRDG3 | BULLBIT };
-		final char VBRTAB2[] = {
-			VBRIDGE | BULLBIT,      RIVER,
-			VBRIDGE | BULLBIT,      VBRIDGE | BULLBIT,
-			VBRIDGE | BULLBIT,      VBRIDGE | BULLBIT,
-			RIVER };
-
-		if (cchr9 == BRWV) {
-			// vertical bridge, open
-			if (PRNG.nextInt(4) == 0 && getBoatDis() > 340/16) {
-				//close the bridge
-				applyBridgeChange(VDx, VDy, VBRTAB, VBRTAB2);
-			}
-			return true;
-		}
-		else if (cchr9 == BRWH) {
-			// horizontal bridge, open
-			if (PRNG.nextInt(4) == 0 && getBoatDis() > 340/16) {
-				// close the bridge
-				applyBridgeChange(HDx, HDy, HBRTAB, HBRTAB2);
-			}
-			return true;
-		}
-
-		if (getBoatDis() < 300/16 && PRNG.nextInt(8) == 0) {
-			if ((cchr & 1) != 0) {
-				// vertical bridge
-				if (xpos < city.getWidth()-1) {
-					// look for CHANNEL tile to right of
-					// bridge. the CHANNEL tiles are only
-					// found in the very center of the
-					// river
-					if (city.getTile(xpos+1,ypos) == CHANNEL) {
-						// vertical bridge, open it up
-						applyBridgeChange(VDx, VDy, VBRTAB2, VBRTAB);
-						return true;
-					}
-				}
-				return false;
-			}
-			else {
-				// horizontal bridge
-				if (ypos > 0) {
-					// look for CHANNEL tile just above
-					// bridge. the CHANNEL tiles are only
-					// found in the very center of the
-					// river
-					if (city.getTile(xpos, ypos-1) == CHANNEL) {
-						// open it up
-						applyBridgeChange(HDx, HDy, HBRTAB2, HBRTAB);
-						return true;
-					}
-				}
-				return false;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Helper function for doBridge- it toggles the draw-bridge.
-	 */
-	private void applyBridgeChange(int [] Dx, int [] Dy, char [] fromTab, char [] toTab)
-	{
-	//FIXME- a closed bridge with traffic on it is not
-	// correctly handled by this subroutine, because the
-	// the tiles representing traffic on a bridge do not match
-	// the expected tile values of fromTab
-
-		for (int z = 0; z < 7; z++) {
-			int x = xpos + Dx[z];
-			int y = ypos + Dy[z];
-			if (city.testBounds(x,y)) {
-				if ((city.map[y][x] & LOMASK) == (fromTab[z] & LOMASK) ||
-					(city.map[y][x] == CHANNEL)
-					) {
-					city.setTile(x, y, toTab[z]);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Calculate how far away the boat currently is from the
-	 * current tile.
-	 */
-	int getBoatDis()
-	{
-		int dist = 99999;
-		for (Sprite s : city.sprites)
-		{
-			if (s.isVisible() && s.kind == SpriteKind.SHI)
-			{
-				int x = s.x / 16;
-				int y = s.y / 16;
-				int d = Math.abs(xpos-x) + Math.abs(ypos-y);
-				dist = Math.min(d, dist);
-			}
-		}
-		return dist;
 	}
 
 	boolean checkZonePower()
@@ -460,27 +109,22 @@ class MapScanner
 
 	boolean setZonePower()
 	{
-		// refresh cchr, cchr9, since this can get called after the
-		// tile's been changed
-		cchr = city.map[ypos][xpos];
-		cchr9 = (char) (cchr & LOMASK);
-
-		boolean oldPower = (cchr & PWRBIT) == PWRBIT;
+		boolean oldPower = (rawTile & PWRBIT) == PWRBIT;
 		boolean newPower = (
-			cchr9 == NUCLEAR ||
-			cchr9 == POWERPLANT ||
+			tile == NUCLEAR ||
+			tile == POWERPLANT ||
 			city.hasPower(xpos,ypos)
 			);
 
 		if (newPower && !oldPower)
 		{
-			city.setTile(xpos, ypos, (char) (cchr | PWRBIT));
-			city.powerZone(xpos, ypos, getZoneSizeFor(cchr));
+			city.setTile(xpos, ypos, (char) (rawTile | PWRBIT));
+			city.powerZone(xpos, ypos, getZoneSizeFor(rawTile));
 		}
 		else if (!newPower && oldPower)
 		{
-			city.setTile(xpos, ypos, (char) (cchr & (~PWRBIT)));
-			city.shutdownZone(xpos, ypos, getZoneSizeFor(cchr));
+			city.setTile(xpos, ypos, (char) (rawTile & (~PWRBIT)));
+			city.shutdownZone(xpos, ypos, getZoneSizeFor(rawTile));
 		}
 
 		return newPower;
@@ -528,6 +172,10 @@ class MapScanner
 			}
 		}
 
+		// refresh rawTile, tile
+		this.rawTile = city.map[ypos][xpos];
+		this.tile = (char) (rawTile & LOMASK);
+
 		setZonePower();
 		return true;
 	}
@@ -574,9 +222,9 @@ class MapScanner
 			z = city.fireEffect/2; // from the funding ratio
 		}
 
-		city.traffic.mapX = xpos;
-		city.traffic.mapY = ypos;
-		if (!city.traffic.findPerimeterRoad()) {
+		traffic.mapX = xpos;
+		traffic.mapY = ypos;
+		if (!traffic.findPerimeterRoad()) {
 			z /= 2;
 		}
 
@@ -598,9 +246,9 @@ class MapScanner
 			z = city.policeEffect / 2;
 		}
 
-		city.traffic.mapX = xpos;
-		city.traffic.mapY = ypos;
-		if (!city.traffic.findPerimeterRoad()) {
+		traffic.mapX = xpos;
+		traffic.mapY = ypos;
+		if (!traffic.findPerimeterRoad()) {
 			z /= 2;
 		}
 
@@ -693,7 +341,7 @@ class MapScanner
 	void doHospitalChurch()
 	{
 		boolean powerOn = checkZonePower();
-		if (cchr9 == HOSPITAL)
+		if (tile == HOSPITAL)
 		{
 			city.hospitalCount++;
 
@@ -705,11 +353,11 @@ class MapScanner
 			{
 				if (PRNG.nextInt(21) == 0)
 				{
-					zonePlop(FREEZ);
+					zonePlop(RESCLR);
 				}
 			}
 		}
-		else if (cchr9 == CHURCH)
+		else if (tile == CHURCH)
 		{
 			city.churchCount++;
 
@@ -721,7 +369,7 @@ class MapScanner
 			{
 				if (PRNG.nextInt(21) == 0)
 				{
-					zonePlop(FREEZ);
+					zonePlop(RESCLR);
 				}
 			}
 		}
@@ -778,13 +426,13 @@ class MapScanner
 		boolean powerOn = checkZonePower();
 		city.comZoneCount++;
 
-		int tpop = commercialZonePop(cchr);
+		int tpop = commercialZonePop(rawTile);
 		city.comPop += tpop;
 
 		int trafficGood;
 		if (tpop > PRNG.nextInt(6))
 		{
-			trafficGood = city.makeTraffic(xpos, ypos, ZoneType.COMMERCIAL);
+			trafficGood = makeTraffic(ZoneType.COMMERCIAL);
 		}
 		else
 		{
@@ -832,13 +480,13 @@ class MapScanner
 		boolean powerOn = checkZonePower();
 		city.indZoneCount++;
 
-		int tpop = industrialZonePop(cchr);
+		int tpop = industrialZonePop(rawTile);
 		city.indPop += tpop;
 
 		int trafficGood;
 		if (tpop > PRNG.nextInt(6))
 		{
-			trafficGood = city.makeTraffic(xpos, ypos, ZoneType.INDUSTRIAL);
+			trafficGood = makeTraffic(ZoneType.INDUSTRIAL);
 		}
 		else
 		{
@@ -885,13 +533,13 @@ class MapScanner
 		city.resZoneCount++;
 
 		int tpop; //population of this zone
-		if (cchr9 == FREEZ)
+		if (tile == RESCLR)
 		{
 			tpop = city.doFreePop(xpos, ypos);
 		}
 		else
 		{
-			tpop = residentialZonePop(cchr);
+			tpop = residentialZonePop(rawTile);
 		}
 
 		city.resPop += tpop;
@@ -899,7 +547,7 @@ class MapScanner
 		int trafficGood;
 		if (tpop > PRNG.nextInt(36))
 		{
-			trafficGood = city.makeTraffic(xpos, ypos, ZoneType.RESIDENTIAL);
+			trafficGood = makeTraffic(ZoneType.RESIDENTIAL);
 		}
 		else
 		{
@@ -913,7 +561,7 @@ class MapScanner
 			return;
 		}
 
-		if (cchr9 == FREEZ || PRNG.nextInt(8) == 0)
+		if (tile == RESCLR || PRNG.nextInt(8) == 0)
 		{
 			int locValve = evalResidential(trafficGood);
 			int zscore = city.resValve + locValve;
@@ -951,8 +599,8 @@ class MapScanner
 	int evalLot(int x, int y)
 	{
 		// test for clear lot
-		int tile = city.getTile(x,y);
-		if (tile != DIRT && !isResidentialClear(tile)) {
+		int aTile = city.getTile(x,y);
+		if (aTile != DIRT && !isResidentialClear(aTile)) {
 			return -1;
 		}
 
@@ -1030,7 +678,7 @@ class MapScanner
 
 	private void doCommercialIn(int pop, int value)
 	{
-		int z = city.landValueMem[ypos/2][xpos/2] / 32;
+		int z = city.getLandValue(xpos, ypos) / 32;
 		if (pop > z)
 			return;
 
@@ -1058,8 +706,8 @@ class MapScanner
 		if (z > 128)
 			return;
 
-		int cchr9 = cchr & LOMASK;
-		if (cchr9 == FREEZ)
+		this.tile = rawTile & LOMASK;
+		if (tile == RESCLR)
 		{
 			if (pop < 8)
 			{
@@ -1151,8 +799,8 @@ class MapScanner
 		{
 			// downgrade from full-size zone to 8 little houses
 
-			int pwrBit = (cchr & PWRBIT);
-			city.setTile(xpos, ypos, (char)(FREEZ | BULLBIT | pwrBit));
+			int pwrBit = (rawTile & PWRBIT);
+			city.setTile(xpos, ypos, (char)(RESCLR | BULLBIT | pwrBit));
 			for (int x = xpos-1; x <= xpos+1; x++)
 			{
 				for (int y = ypos-1; y <= ypos+1; y++)
@@ -1188,7 +836,7 @@ class MapScanner
 						int loc = city.map[y][x] & LOMASK;
 						if (loc >= LHTHR && loc <= HHTHR)
 						{ //little house
-							city.setTile(x, y, (char)((Brdr[z] + FREEZ - 4) | BULLBIT));
+							city.setTile(x, y, (char)((Brdr[z] + RESCLR - 4) | BULLBIT));
 							return;
 						}
 					}
@@ -1235,7 +883,7 @@ class MapScanner
 		if (traf < 0)
 			return -3000;
 
-		int value = city.landValueMem[ypos/2][xpos/2];
+		int value = city.getLandValue(xpos, ypos);
 		value -= city.pollutionMem[ypos/2][xpos/2];
 
 		if (value < 0)
@@ -1257,7 +905,7 @@ class MapScanner
 	 */
 	int getCRValue()
 	{
-		int lval = city.landValueMem[ypos/2][xpos/2];
+		int lval = city.getLandValue(xpos, ypos);
 		lval -= city.pollutionMem[ypos/2][xpos/2];
 
 		if (lval < 30)
@@ -1303,4 +951,14 @@ class MapScanner
 		}
 	}
 
+	/**
+	 * @return 1 if traffic "passed", 0 if traffic "failed", -1 if no roads found
+	 */
+	int makeTraffic(ZoneType zoneType)
+	{
+		traffic.mapX = xpos;
+		traffic.mapY = ypos;
+		traffic.sourceZone = zoneType;
+		return traffic.makeTraffic();
+	}
 }

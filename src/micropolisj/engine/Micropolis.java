@@ -35,7 +35,7 @@ public class Micropolis
 	 * 0 is lowest land value; 250 is maximum land value.
 	 * Updated each cycle by ptlScan().
 	 */
-	public int [][] landValueMem;
+	int [][] landValueMem;
 
 	/**
 	 * For each 2x2 section of the city, the pollution level of the city (0-255).
@@ -63,7 +63,7 @@ public class Micropolis
 	 * If between 64 and 192, then the "light traffic" animation is used.
 	 * If 192 or higher, then the "heavy traffic" animation is used.
 	 */
-	public int [][] trfDensity;
+	int [][] trfDensity;
 
 	// quarter-size arrays
 
@@ -215,6 +215,7 @@ public class Micropolis
 		PRNG = DEFAULT_PRNG;
 		evaluation = new CityEval(this);
 		init(width, height);
+		initTileBehaviors();
 	}
 
 	protected void init(int width, int height)
@@ -257,10 +258,10 @@ public class Micropolis
 		}
 	}
 
-	void fireCityMessage(MicropolisMessage message, CityLocation loc, boolean isPic)
+	void fireCityMessage(MicropolisMessage message, CityLocation loc)
 	{
 		for (Listener l : listeners) {
-			l.cityMessage(message, loc, isPic);
+			l.cityMessage(message, loc);
 		}
 	}
 
@@ -380,7 +381,7 @@ public class Micropolis
 	 */
 	public interface Listener
 	{
-		void cityMessage(MicropolisMessage message, CityLocation loc, boolean isPic);
+		void cityMessage(MicropolisMessage message, CityLocation loc);
 		void citySound(Sound sound, CityLocation loc);
 
 		/**
@@ -425,6 +426,11 @@ public class Micropolis
 	public char getTile(int xpos, int ypos)
 	{
 		return map[ypos][xpos];
+	}
+
+	public boolean isTilePowered(int xpos, int ypos)
+	{
+		return (getTile(xpos, ypos) & PWRBIT) == PWRBIT;
 	}
 
 	public void setTile(int xpos, int ypos, char newTile)
@@ -609,7 +615,7 @@ public class Micropolis
 
 	private int computePopDen(int x, int y, char tile)
 	{
-		if (tile == FREEZ)
+		if (tile == RESCLR)
 			return doFreePop(x, y);
 
 		if (tile < COMBASE)
@@ -1028,6 +1034,53 @@ public class Micropolis
 		}
 	}
 
+	/**
+	 * Increase the traffic-density measurement at a particular
+	 * spot.
+	 * @param traffic the amount to add to the density
+	 */
+	void addTraffic(int mapX, int mapY, int traffic)
+	{
+		int z = trfDensity[mapY/2][mapX/2];
+		z += traffic;
+
+		//FIXME- why is this only capped to 240
+		// by random chance. why is there no cap
+		// the rest of the time?
+
+		if (z > 240 && PRNG.nextInt(6) == 0)
+		{
+			z = 240;
+			trafficMaxLocationX = mapX;
+			trafficMaxLocationY = mapY;
+
+			HelicopterSprite copter = (HelicopterSprite) getSprite(SpriteKind.COP);
+			if (copter != null) {
+				copter.destX = mapX;
+				copter.destY = mapY;
+			}
+		}
+
+		trfDensity[mapY/2][mapX/2] = z;
+	}
+
+	/** Accessor method for fireRate[]. */
+	public int getFireStationCoverage(int xpos, int ypos)
+	{
+		return fireRate[ypos/8][xpos/8];
+	}
+
+	/** Accessor method for landValueMem overlay. */
+	public int getLandValue(int xpos, int ypos)
+	{
+		if (testBounds(xpos, ypos)) {
+			return landValueMem[ypos/2][xpos/2];
+		}
+		else {
+			return 0;
+		}
+	}
+
 	public int getTrafficDensity(int xpos, int ypos)
 	{
 		if (testBounds(xpos, ypos)) {
@@ -1347,20 +1400,59 @@ public class Micropolis
 			return z;
 	}
 
+	Map<String,TileBehavior> tileBehaviors;
+	void initTileBehaviors()
+	{
+		HashMap<String,TileBehavior> bb;
+		bb = new HashMap<String,TileBehavior>();
+
+		bb.put("FIRE", new TerrainBehavior(this, TerrainBehavior.B.FIRE));
+		bb.put("FLOOD", new TerrainBehavior(this, TerrainBehavior.B.FLOOD));
+		bb.put("RADIOACTIVE", new TerrainBehavior(this, TerrainBehavior.B.RADIOACTIVE));
+		bb.put("ROAD", new TerrainBehavior(this, TerrainBehavior.B.ROAD));
+		bb.put("RAIL", new TerrainBehavior(this, TerrainBehavior.B.RAIL));
+		bb.put("EXPLOSION", new TerrainBehavior(this, TerrainBehavior.B.EXPLOSION));
+		bb.put("RESIDENTIAL", new MapScanner(this, MapScanner.B.RESIDENTIAL));
+		bb.put("HOSPITAL_CHURCH", new MapScanner(this, MapScanner.B.HOSPITAL_CHURCH));
+		bb.put("COMMERCIAL", new MapScanner(this, MapScanner.B.COMMERCIAL));
+		bb.put("INDUSTRIAL", new MapScanner(this, MapScanner.B.INDUSTRIAL));
+		bb.put("COAL", new MapScanner(this, MapScanner.B.COAL));
+		bb.put("NUCLEAR", new MapScanner(this, MapScanner.B.NUCLEAR));
+		bb.put("FIRESTATION", new MapScanner(this, MapScanner.B.FIRESTATION));
+		bb.put("POLICESTATION", new MapScanner(this, MapScanner.B.POLICESTATION));
+		bb.put("STADIUM_EMPTY", new MapScanner(this, MapScanner.B.STADIUM_EMPTY));
+		bb.put("STADIUM_FULL", new MapScanner(this, MapScanner.B.STADIUM_FULL));
+		bb.put("AIRPORT", new MapScanner(this, MapScanner.B.AIRPORT));
+		bb.put("SEAPORT", new MapScanner(this, MapScanner.B.SEAPORT));
+
+		this.tileBehaviors = bb;
+	}
+
 	void mapScan(int x0, int x1)
 	{
-		MapScanner scanner = new MapScanner(this);
-
 		for (int x = x0; x < x1; x++)
 		{
-			scanner.xpos = x;
-
 			for (int y = 0; y < getHeight(); y++)
 			{
-				scanner.ypos = y;
-				scanner.cchr = map[y][x];
-				scanner.scanTile();
+				mapScanTile(x, y);
 			}
+		}
+	}
+
+	void mapScanTile(int xpos, int ypos)
+	{
+		int rawTile = getTile(xpos, ypos);
+		String behaviorStr = getTileBehavior(rawTile & LOMASK);
+		if (behaviorStr == null) {
+			return; //nothing to do
+		}
+
+		TileBehavior b = tileBehaviors.get(behaviorStr);
+		if (b != null) {
+			b.processTile(xpos, ypos);
+		}
+		else {
+			throw new Error("Unknown behavior: "+behaviorStr);
 		}
 	}
 
@@ -1726,27 +1818,6 @@ public class Micropolis
 		return b;
 	}
 
-	/**
-	 * The three main types of zones found in Micropolis.
-	 */
-	static enum ZoneType
-	{
-		RESIDENTIAL, COMMERCIAL, INDUSTRIAL;
-	}
-
-	TrafficGen traffic = new TrafficGen(this);
-
-	/**
-	 * @return 1 if traffic "passed", 0 if traffic "failed", -1 if no roads found
-	 */
-	int makeTraffic(int xpos, int ypos, ZoneType zoneType)
-	{
-		traffic.mapX = xpos;
-		traffic.mapY = ypos;
-		traffic.sourceZone = zoneType;
-		return traffic.makeTraffic();
-	}
-
 	int getPopulationDensity(int xpos, int ypos)
 	{
 		return popDensity[ypos/2][xpos/2];
@@ -1783,7 +1854,7 @@ public class Micropolis
 		}
 
 		clearMes();
-		sendMessageAtPic(MicropolisMessage.MELTDOWN_REPORT, xpos, ypos);
+		sendMessageAt(MicropolisMessage.MELTDOWN_REPORT, xpos, ypos);
 	}
 
 	static final int [] MltdwnTab = { 30000, 20000, 10000 };
@@ -2124,7 +2195,7 @@ public class Micropolis
 		makeSound(centerMassX, centerMassY, Sound.EXPLOSION_LOW);
 		fireEarthquakeStarted();
 
-		sendMessageAtPic(MicropolisMessage.EARTHQUAKE_REPORT, centerMassX, centerMassY);
+		sendMessageAt(MicropolisMessage.EARTHQUAKE_REPORT, centerMassX, centerMassY);
 		int time = PRNG.nextInt(701) + 300;
 		for (int z = 0; z < time; z++) {
 			int x = PRNG.nextInt(getWidth());
@@ -2150,7 +2221,7 @@ public class Micropolis
 		if (TileConstants.isArsonable(t)) {
 			setTile(x, y, (char)(FIRE + PRNG.nextInt(8)));
 			crashLocation = new CityLocation(x, y);
-			sendMessageAtPic(MicropolisMessage.FIRE_REPORT, x, y);
+			sendMessageAt(MicropolisMessage.FIRE_REPORT, x, y);
 		}
 	}
 
@@ -2249,7 +2320,7 @@ public class Micropolis
 		int xpos = PRNG.nextInt(getWidth() - 19) + 10;
 		int ypos = PRNG.nextInt(getHeight() - 19) + 10;
 		sprites.add(new TornadoSprite(this, xpos, ypos));
-		sendMessageAtPic(MicropolisMessage.TORNADO_REPORT, xpos, ypos);
+		sendMessageAt(MicropolisMessage.TORNADO_REPORT, xpos, ypos);
 	}
 
 	public void makeFlood()
@@ -2271,7 +2342,7 @@ public class Micropolis
 						if (isFloodable(c)) {
 							setTile(xx, yy, FLOOD);
 							floodCnt = 30;
-							sendMessageAtPic(MicropolisMessage.FLOOD_REPORT, xx, yy);
+							sendMessageAt(MicropolisMessage.FLOOD_REPORT, xx, yy);
 							floodX = xx;
 							floodY = yy;
 							return;
@@ -2403,7 +2474,7 @@ public class Micropolis
 					z = MicropolisMessage.POP_2K_REACHED;
 				}
 				if (z != null) {
-					sendMessage(z, true);
+					sendMessage(z);
 				}
 			}
 			lastCityPop = newPop;
@@ -2479,12 +2550,12 @@ public class Micropolis
 			break;
 		case 35:
 			if (pollutionAverage > 60) { // FIXME, consider changing threshold to 80
-				sendMessage(MicropolisMessage.HIGH_POLLUTION, true);
+				sendMessage(MicropolisMessage.HIGH_POLLUTION);
 			}
 			break;
 		case 42:
 			if (crimeAverage > 100) {
-				sendMessage(MicropolisMessage.HIGH_CRIME, true);
+				sendMessage(MicropolisMessage.HIGH_CRIME);
 			}
 			break;
 		case 45:
@@ -2537,22 +2608,12 @@ public class Micropolis
 
 	void sendMessage(MicropolisMessage message)
 	{
-		fireCityMessage(message, null, false);
-	}
-
-	void sendMessage(MicropolisMessage message, boolean isPic)
-	{
-		fireCityMessage(message, null, true);
+		fireCityMessage(message, null);
 	}
 
 	void sendMessageAt(MicropolisMessage message, int x, int y)
 	{
-		fireCityMessage(message, new CityLocation(x,y), false);
-	}
-
-	void sendMessageAtPic(MicropolisMessage message, int x, int y)
-	{
-		fireCityMessage(message, new CityLocation(x,y), true);
+		fireCityMessage(message, new CityLocation(x,y));
 	}
 
 	public ZoneStatus queryZoneStatus(int xpos, int ypos)

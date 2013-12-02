@@ -19,7 +19,7 @@ class TrafficGen
 	final Micropolis city;
 	int mapX;
 	int mapY;
-	Micropolis.ZoneType sourceZone;
+	ZoneType sourceZone;
 
 	int lastdir;
 	Stack<CityLocation> positions = new Stack<CityLocation>();
@@ -60,31 +60,11 @@ class TrafficGen
 			mapY = pos.y;
 			assert city.testBounds(mapX, mapY);
 
+			// check for road/rail
 			int tile = city.getTile(mapX, mapY) & LOMASK;
 			if (tile >= ROADBASE && tile < POWERBASE)
 			{
-				// check for rail
-				int z = city.trfDensity[mapY/2][mapX/2];
-				z += 50;
-
-				//FIXME- why is this only capped to 240
-				// by random chance. why is there no cap
-				// the rest of the time?
-
-				if (z > 240 && city.PRNG.nextInt(6) == 0)
-				{
-					z = 240;
-					city.trafficMaxLocationX = mapX;
-					city.trafficMaxLocationY = mapY;
-
-					HelicopterSprite copter = (HelicopterSprite) city.getSprite(SpriteKind.COP);
-					if (copter != null) {
-						copter.destX = mapX;
-						copter.destY = mapY;
-					}
-				}
-
-				city.trfDensity[mapY/2][mapX/2] = z;
+				city.addTraffic(mapX, mapY, 50);
 			}
 		}
 	}
@@ -240,5 +220,13 @@ class TrafficGen
 				return true;
 		}
 		return false;
+	}
+
+	/**
+	 * The three main types of zones found in Micropolis.
+	 */
+	static enum ZoneType
+	{
+		RESIDENTIAL, COMMERCIAL, INDUSTRIAL;
 	}
 }
