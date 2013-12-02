@@ -142,7 +142,7 @@ public class DemandView extends View
 	}
 
 	// implements Micropolis.Listener
-	public void cityMessage(MicropolisMessage m, CityLocation p, boolean x) { }
+	public void cityMessage(MicropolisMessage m, CityLocation p) { }
 	public void citySound(Sound sound, CityLocation p) { }
 	public void censusChanged() { }
 	public void evaluationChanged() { }

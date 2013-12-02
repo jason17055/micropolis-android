@@ -349,7 +349,7 @@ public class MainActivity extends Activity
 	static ResourceBundle cityMessageStrings = ResourceBundle.getBundle("micropolisj.CityMessages");
 
 	// implements Micropolis.Listener
-	public void cityMessage(MicropolisMessage message, CityLocation loc, boolean isPic)
+	public void cityMessage(MicropolisMessage message, CityLocation loc)
 	{
 		String s = cityMessageStrings.getString(message.name());
 		Toast.makeText(this,
