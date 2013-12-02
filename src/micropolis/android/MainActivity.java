@@ -167,9 +167,26 @@ public class MainActivity extends Activity
 		public void run()
 		{
 			if (this != advanceSim) { return; }
-			getCity().animate();
-			updateDateLabel();
-			sched();
+
+			try {
+				getCity().animate();
+				updateDateLabel();
+				sched();
+			}
+			catch (Exception e) {
+
+				// An error was thrown by the simulator.
+				// This should not happen, but it is a real pain to
+				// debug without at least seeing the error message.
+				// So, here we display a crude message box with the
+				// error.
+
+				AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
+				b.setTitle("Error");
+				b.setMessage(e.toString());
+				b.show();
+			}
+
 		}
 	}
 
