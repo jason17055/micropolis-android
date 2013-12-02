@@ -2,6 +2,8 @@ package micropolis.android;
 
 import micropolisj.engine.*;
 
+import java.util.HashSet;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.*;
@@ -31,6 +33,7 @@ public class MicropolisView extends View
 	float originY = 0.0f;
 
 	static final float SCALE_MOMENTUM_FACTOR = 0.9f;
+	static final int BLINK_INTERVAL_MS = 500;
 
 	float scaleFocusX = 0.0f;
 	float scaleFocusY = 0.0f;
@@ -38,6 +41,11 @@ public class MicropolisView extends View
 
 	boolean allowTouchMotion = true;
 	MicropolisTool currentTool = null;
+
+	boolean blinkUnpoweredZones = true;
+	HashSet<CityLocation> unpoweredZones = new HashSet<CityLocation>();
+	boolean blink;
+	boolean blinkScheduled;
 
 	public MicropolisView(Context context, AttributeSet attrs)
 	{
@@ -147,11 +155,48 @@ public class MicropolisView extends View
 		for (int y = minY; y < maxY; y++) {
 			for (int x = minX; x < maxX; x++) {
 				int t = city.getTile(x, y) & TileConstants.LOMASK;
+				if (blinkUnpoweredZones &&
+					TileConstants.isZoneCenter(t) &&
+					!city.isTilePowered(x, y))
+				{
+					unpoweredZones.add(new CityLocation(x, y));
+					if (blink) {
+						t = TileConstants.LIGHTNINGBOLT;
+					}
+				}
+
 				tiles.drawTo(canvas, t, x, y);
 			}
 		}
 
 		canvas.restore();
+
+		maybeStartBlinkTimer();
+	}
+
+	void maybeStartBlinkTimer()
+	{
+		if (!blinkScheduled && !unpoweredZones.isEmpty()) {
+
+			myHandler.postDelayed(new Runnable() {
+				public void run() {
+					doBlink();
+				}}, BLINK_INTERVAL_MS);
+			blinkScheduled = true;
+		}
+	}
+
+	public void doBlink()
+	{
+		blinkScheduled = false;
+		blink = !blink;
+
+		for (CityLocation loc : unpoweredZones) {
+			
+			Rect r = getTileBounds(loc.x, loc.y);
+			invalidate(r);
+		}
+		unpoweredZones.clear();
 	}
 
 	class MyGestureListener extends GestureDetector.SimpleOnGestureListener
