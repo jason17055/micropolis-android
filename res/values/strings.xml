@@ -13,9 +13,14 @@
 	<string name="pickbuilding_caption">Choose Building</string>
 	<string name="cancel">Cancel</string>
 
+	<!-- InspectLocation Dialog -->
+	<string name="inspect_location_caption">Inspect Zone</string>
+	<string name="dismiss">Dismiss</string>
+
 	<string-array name="levels_array">
 		<item>Easy</item>
 		<item>Medium</item>
 		<item>Hard</item>
 	</string-array>
+
 </resources>

@@ -26,7 +26,8 @@ import micropolisj.engine.*;
 
 public class MainActivity extends Activity
 	implements PickBuildingDialogFragment.Listener,
-		Micropolis.Listener
+		Micropolis.Listener,
+		MicropolisView.InspectHelper
 {
 	Micropolis city;
 
@@ -71,6 +72,8 @@ public class MainActivity extends Activity
 		getDemandIndicator().setCity(city);
 		updateDateLabel();
 		fundsChanged();
+
+		getMicropolisView().setInspectHelper(this);
 	}
 
 	private void loadCityFromIntent()
@@ -429,5 +432,12 @@ public class MainActivity extends Activity
 			String t = nf.format(city.getCityPopulation());
 			popLbl.setText(t);
 		}
+	}
+
+	//implements MicropolisView.InspectHelper
+	public void inspectLocation(CityLocation loc)
+	{
+		DialogFragment dlg = new InspectLocationFragment();
+		dlg.show(getFragmentManager(), "InspectLocationFragment");
 	}
 }

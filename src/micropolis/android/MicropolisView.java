@@ -459,6 +459,13 @@ public class MicropolisView extends View
 		}
 	}
 
+	void inspectLocation(CityLocation loc)
+	{
+		if (inspectHelper != null) {
+			inspectHelper.inspectLocation(loc);
+		}
+	}
+
 	private void processTool(float x, float y)
 	{
 		try {
@@ -466,6 +473,9 @@ public class MicropolisView extends View
 		CityLocation loc = getLocation(x, y);
 		if (currentTool != null) {
 			currentTool.apply(city, loc.x, loc.y);
+		}
+		else {
+			inspectLocation(loc);
 		}
 
 		}
@@ -536,4 +546,14 @@ public class MicropolisView extends View
 		}
 	}
 
+	public interface InspectHelper
+	{
+		void inspectLocation(CityLocation loc);
+	}
+	InspectHelper inspectHelper;
+
+	void setInspectHelper(InspectHelper helper)
+	{
+		this.inspectHelper = helper;
+	}
 }
