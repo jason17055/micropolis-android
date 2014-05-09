@@ -456,7 +456,7 @@ public class MainActivity extends Activity
 
 		ZoneStatus z = city.queryZoneStatus(loc.x, loc.y);
 
-		DialogFragment dlg = new InspectLocationFragment(z);
+		DialogFragment dlg = new InspectLocationFragment(city, loc, z);
 		dlg.show(getFragmentManager(), "InspectLocationFragment");
 	}
 }

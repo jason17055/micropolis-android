@@ -14,7 +14,6 @@
 	<string name="cancel">Cancel</string>
 
 	<!-- InspectLocation Dialog -->
-	<string name="inspect_location_caption">Inspect Zone</string>
 	<string name="dismiss">Dismiss</string>
 
 	<string-array name="levels_array">
