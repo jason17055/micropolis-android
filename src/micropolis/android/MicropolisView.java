@@ -54,8 +54,31 @@ public class MicropolisView extends View
 		tiles = new TileHelper(context, tileSize);
 	}
 
+	public Micropolis getCity()
+	{
+		return this.city;
+	}
+
+	MapListener myMapListener = new MapListener() {
+		public void mapOverlayDataChanged(MapState overlayDataType) {}
+		public void spriteMoved(Sprite sprite) {}
+		public void tileChanged(int xpos, int ypos) {
+			onTileChanged(xpos, ypos);
+		}
+		public void wholeMapChanged() {
+			invalidate();
+		}
+		};
+
 	public void setCity(Micropolis newCity)
 	{
+		assert newCity != null;
+
+		if (this.city != null) {
+			city.removeMapListener(myMapListener);
+			this.city = null;
+		}
+
 		this.city = newCity;
 
 		updateScrollBounds();
@@ -63,16 +86,8 @@ public class MicropolisView extends View
 		originX = (scrollBounds.left + scrollBounds.right) / 2.0f;
 		originY = (scrollBounds.top + scrollBounds.bottom) / 2.0f;
 
-		city.addMapListener(new MapListener() {
-			public void mapOverlayDataChanged(MapState overlayDataType) {}
-			public void spriteMoved(Sprite sprite) {}
-			public void tileChanged(int xpos, int ypos) {
-				onTileChanged(xpos, ypos);
-			}
-			public void wholeMapChanged() {
-				invalidate();
-			}
-			});
+		city.addMapListener(myMapListener);
+		invalidate();
 	}
 
 	@Override

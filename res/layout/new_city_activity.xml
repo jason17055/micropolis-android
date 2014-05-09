@@ -22,6 +22,7 @@
 		android:layout_height="wrap_content"
 		android:text="LEFT"
 		android:gravity="center"
+		android:onClick="previousMapClicked"
 		/>
 	<micropolis.android.MicropolisView
 		android:layout_width="match_parent"
@@ -34,6 +35,7 @@
 		android:layout_height="wrap_content"
 		android:text="RIGHT"
 		android:gravity="center"
+		android:onClick="nextMapClicked"
 		/>
 </LinearLayout>
 

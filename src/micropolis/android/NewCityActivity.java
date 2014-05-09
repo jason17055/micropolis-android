@@ -7,10 +7,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
+import java.util.*;
 
 public class NewCityActivity extends Activity
 {
 	Micropolis curCity;
+	ArrayList<Micropolis> previousCities = new ArrayList<Micropolis>();
+	ArrayList<Micropolis> futureCities = new ArrayList<Micropolis>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -27,8 +30,7 @@ public class NewCityActivity extends Activity
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		levelSpinner.setAdapter(adapter);
 
-		curCity = new Micropolis();
-		new MapGenerator(curCity).generateNewCity();
+		generateCity();
 
 		MicropolisView v = getNewCityPreview();
 		v.setCity(curCity);
@@ -47,5 +49,39 @@ public class NewCityActivity extends Activity
 		Intent intent = new Intent(this, MainActivity.class);
 		startActivity(intent);
 		finish();
+	}
+
+	void generateCity()
+	{
+		curCity = new Micropolis();
+		new MapGenerator(curCity).generateNewCity();
+	}
+
+	public void nextMapClicked(View btn)
+	{
+		MicropolisView v = getNewCityPreview();
+		previousCities.add(v.getCity());
+
+		if (futureCities.isEmpty()) {
+			generateCity();
+		}
+		else {
+			curCity = futureCities.remove(futureCities.size()-1);
+		}
+		v.setCity(curCity);
+	}
+
+	public void previousMapClicked(View btn)
+	{
+		MicropolisView v = getNewCityPreview();
+		futureCities.add(v.getCity());
+
+		if (previousCities.isEmpty()) {
+			generateCity();
+		}
+		else {
+			curCity = previousCities.remove(previousCities.size()-1);
+		}
+		v.setCity(curCity);
 	}
 }
