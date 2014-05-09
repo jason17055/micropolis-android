@@ -10,6 +10,12 @@ package micropolisj.engine;
 
 import static micropolisj.engine.TileConstants.*;
 
+/**
+ * Implements the cargo ship.
+ * The cargo ship is created if the city contains a sea port.
+ * It follows the river "channel" that was originally generated.
+ * It frequently turns around.
+ */
 public class ShipSprite extends Sprite
 {
 	static int [] BDx = {  0,  0,  1,  1,  1,  0, -1, -1, -1 };
@@ -74,7 +80,7 @@ public class ShipSprite extends Sprite
 				int ypos = this.y / 16 + BDy[z];
 	
 				if (city.testBounds(xpos, ypos)) {
-					t = city.getTile(xpos, ypos) & LOMASK;
+					t = city.getTile(xpos, ypos);
 					if ((t == CHANNEL) || (t == BRWH) || (t == BRWV) ||
 						tryOther(t, this.dir, z))
 					{

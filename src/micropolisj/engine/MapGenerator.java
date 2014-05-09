@@ -391,10 +391,10 @@ public class MapGenerator
 	}
 
 	static final char [] REdTab = new char[] {
-		13 + BULLBIT, 13 + BULLBIT, 17 + BULLBIT, 15 + BULLBIT,
-		5 + BULLBIT,  2,            19 + BULLBIT, 17 + BULLBIT,
-		9 + BULLBIT,  11 + BULLBIT, 2,            13 + BULLBIT,
-		7 + BULLBIT,  9 + BULLBIT,  5 + BULLBIT,  2
+		RIVEDGE + 8, RIVEDGE + 8, RIVEDGE + 12, RIVEDGE + 10,
+		RIVEDGE + 0, RIVER,       RIVEDGE + 14, RIVEDGE + 12,
+		RIVEDGE + 4, RIVEDGE + 6, RIVER,        RIVEDGE + 8,
+		RIVEDGE + 2, RIVEDGE + 4, RIVEDGE + 0,  RIVER
 		};
 
 	private void smoothRiver()
@@ -479,7 +479,7 @@ public class MapGenerator
 
 			if ((map[mapY][mapX] & LOMASK) == DIRT)
 			{
-				map[mapY][mapX] = WOODS | BULLBIT;
+				map[mapY][mapX] = WOODS;
 			}
 		}
 	}
@@ -532,7 +532,7 @@ public class MapGenerator
 								temp -= 8;
 							}
 						}
-						map[mapY][mapX] = (char)(temp | BULLBIT);
+						map[mapY][mapX] = temp;
 					}
 					else
 					{

@@ -425,12 +425,43 @@ public class Micropolis
 
 	public char getTile(int xpos, int ypos)
 	{
+		return (char)(map[ypos][xpos] & LOMASK);
+	}
+
+	public char getTileRaw(int xpos, int ypos)
+	{
 		return map[ypos][xpos];
+	}
+
+	boolean isTileDozeable(ToolEffectIfc eff)
+	{
+		int myTile = eff.getTile(0, 0);
+		TileSpec ts = Tiles.get(myTile);
+		if (ts.canBulldoze) {
+			return true;
+		}
+
+		if (ts.owner != null) {
+			// part of a zone; only bulldozeable if the owner tile is
+			// no longer intact.
+
+			int baseTile = eff.getTile(-ts.ownerOffsetX, -ts.ownerOffsetY);
+			return !(ts.owner.tileNumber == baseTile);
+		}
+
+		return false;
+	}
+
+	boolean isTileDozeable(int xpos, int ypos)
+	{
+		return isTileDozeable(
+			new ToolEffect(this, xpos, ypos)
+			);
 	}
 
 	public boolean isTilePowered(int xpos, int ypos)
 	{
-		return (getTile(xpos, ypos) & PWRBIT) == PWRBIT;
+		return (getTileRaw(xpos, ypos) & PWRBIT) == PWRBIT;
 	}
 
 	public void setTile(int xpos, int ypos, char newTile)
@@ -677,11 +708,10 @@ public class Micropolis
 		{
 			for (int y = 0; y < height; y++)
 			{
-				char tile = map[y][x];
+				char tile = getTile(x, y);
 				if (isZoneCenter(tile))
 				{
-					tile &= LOMASK;
-					int den = computePopDen(x, y, (char)tile) * 8;
+					int den = computePopDen(x, y, tile) * 8;
 					if (den > 254)
 						den = 254;
 					tem[y/2][x/2] = den;
@@ -920,10 +950,11 @@ public class Micropolis
 		boolean rv = false;
 		if (movePowerLocation(loc,dir))
 		{
+			char t = getTile(loc.x, loc.y);
 			rv = (
-				isConductive(map[loc.y][loc.x]) &&
-				map[loc.y][loc.x] != NUCLEAR &&
-				map[loc.y][loc.x] != POWERPLANT &&
+				isConductive(t) &&
+				t != NUCLEAR &&
+				t != POWERPLANT &&
 				!hasPower(loc.x, loc.y)
 				);
 		}
@@ -1116,7 +1147,7 @@ public class Micropolis
 				{
 					for (int my = zy; my <= zy+1; my++)
 					{
-						int tile = (map[my][mx] & LOMASK);
+						int tile = getTile(mx, my);
 						if (tile != DIRT)
 						{
 							if (tile < RUBBLE) //natural land features
@@ -1441,8 +1472,8 @@ public class Micropolis
 
 	void mapScanTile(int xpos, int ypos)
 	{
-		int rawTile = getTile(xpos, ypos);
-		String behaviorStr = getTileBehavior(rawTile & LOMASK);
+		int tile = getTile(xpos, ypos);
+		String behaviorStr = getTileBehavior(tile);
 		if (behaviorStr == null) {
 			return; //nothing to do
 		}
@@ -1552,7 +1583,7 @@ public class Micropolis
 			{
 				if (testBounds(x,y))
 				{
-					char loc = (char) (map[y][x] & LOMASK);
+					char loc = getTile(x, y);
 					if (loc >= LHTHR && loc <= HHTHR)
 						count++;
 				}
@@ -1998,7 +2029,7 @@ public class Micropolis
 			for (int y = 0; y < DEFAULT_HEIGHT; y++)
 			{
 				int z = dis.readShort();
-				z &= ~(1024 | 2048 | 8192 | 16384); // clear ZONEBIT,ANIMBIT,BURNBIT,CONDBIT on import
+				z &= ~(1024 | 2048 | 4096 | 8192 | 16384); // clear ZONEBIT,ANIMBIT,BULLBIT,BURNBIT,CONDBIT on import
 				map[y][x] = (char) z;
 			}
 		}
@@ -2012,16 +2043,19 @@ public class Micropolis
 			for (int y = 0; y < DEFAULT_HEIGHT; y++)
 			{
 				int z = map[y][x];
-				if (isConductive(z)) {
+				if (isConductive(z & LOMASK)) {
 					z |= 16384;  //synthesize CONDBIT on export
 				}
-				if (isCombustible(z)) {
+				if (isCombustible(z & LOMASK)) {
 					z |= 8192;   //synthesize BURNBIT on export
 				}
-				if (isAnimated(z)) {
+				if (isTileDozeable(x, y)) {
+					z |= 4096;   //synthesize BULLBIT on export
+				}
+				if (isAnimated(z & LOMASK)) {
 					z |= 2048;   //synthesize ANIMBIT on export
 				}
-				if (isZoneCenter(z)) {
+				if (isZoneCenter(z & LOMASK)) {
 					z |= 1024;   //synthesize ZONEBIT
 				}
 				out.writeShort(z);
@@ -2054,11 +2088,11 @@ public class Micropolis
 		for (int y = 0; y < map.length; y++) {
 			for (int x = 0; x < map[y].length; x++) {
 				int tile = getTile(x,y);
-				if ((tile & LOMASK) == NUCLEAR) {
+				if (tile == NUCLEAR) {
 					nuclearCount++;
 					powerPlants.add(new CityLocation(x,y));
 				}
-				else if ((tile & LOMASK) == POWERPLANT) {
+				else if (tile == POWERPLANT) {
 					coalCount++;
 					powerPlants.add(new CityLocation(x,y));
 				}
@@ -2202,9 +2236,9 @@ public class Micropolis
 			int y = PRNG.nextInt(getHeight());
 			assert testBounds(x, y);
 
-			if (TileConstants.isVulnerable(getTile(x, y))) {
+			if (isVulnerable(getTile(x, y))) {
 				if (PRNG.nextInt(4) != 0) {
-					setTile(x, y, (char)(RUBBLE + BULLBIT + PRNG.nextInt(4)));
+					setTile(x, y, (char)(RUBBLE + PRNG.nextInt(4)));
 				} else {
 					setTile(x, y, (char)(FIRE + PRNG.nextInt(8)));
 				}
@@ -2218,7 +2252,7 @@ public class Micropolis
 		int y = PRNG.nextInt(getHeight());
 		int t = getTile(x, y);
 
-		if (TileConstants.isArsonable(t)) {
+		if (isArsonable(t)) {
 			setTile(x, y, (char)(FIRE + PRNG.nextInt(8)));
 			crashLocation = new CityLocation(x, y);
 			sendMessageAt(MicropolisMessage.FIRE_REPORT, x, y);
@@ -2232,10 +2266,9 @@ public class Micropolis
 		{
 			int x = PRNG.nextInt(getWidth());
 			int y = PRNG.nextInt(getHeight());
-			int tile = map[y][x];
+			int tile = getTile(x, y);
 			if (!isZoneCenter(tile) && isCombustible(tile))
 			{
-				tile &= LOMASK;
 				if (tile > 21 && tile < LASTZONE) {
 					setTile(x, y, (char)(FIRE + PRNG.nextInt(8)));
 					sendMessageAt(MicropolisMessage.FIRE_REPORT, x, y);
@@ -2254,7 +2287,7 @@ public class Micropolis
 		ArrayList<CityLocation> candidates = new ArrayList<CityLocation>();
 		for (int y = 0; y < map.length; y++) {
 			for (int x = 0; x < map[y].length; x++) {
-				if ((map[y][x] & LOMASK) == NUCLEAR) {
+				if (getTile(x, y) == NUCLEAR) {
 					candidates.add(new CityLocation(x,y));
 				}
 			}
@@ -2290,7 +2323,7 @@ public class Micropolis
 			int x = PRNG.nextInt(getWidth() - 19) + 10;
 			int y = PRNG.nextInt(getHeight() - 9) + 5;
 			int t = getTile(x, y);
-			if ((t & LOMASK) == RIVER) {
+			if (t == RIVER) {
 				makeMonsterAt(x, y);
 				return;
 			}
@@ -2331,7 +2364,7 @@ public class Micropolis
 		for (int z = 0; z < 300; z++) {
 			int x = PRNG.nextInt(getWidth());
 			int y = PRNG.nextInt(getHeight());
-			int tile = map[y][x] & LOMASK;
+			int tile = getTile(x, y);
 			if (isRiverEdge(tile))
 			{
 				for (int t = 0; t < 4; t++) {
@@ -2374,20 +2407,6 @@ public class Micropolis
 
 		// this will take care of stopping smoke animations
 		shutdownZone(xpos, ypos, dim);
-
-		for (int y = 0; y < dim.height; y++) {
-			for (int x = 0; x < dim.width; x++, zoneBase++) {
-				int xtem = xpos - 1 + x;
-				int ytem = ypos - 1 + y;
-				if (!testBounds(xtem, ytem))
-					continue;
-
-				int t = getTile(xtem, ytem);
-				if (isConstructed(t)) {
-					setTile(xtem, ytem, (char)(t | BULLBIT));
-				}
-			}
-		}
 	}
 
 	/**
@@ -2406,7 +2425,7 @@ public class Micropolis
 			for (int dy = 0; dy < zoneSize.height; dy++) {
 				int x = xpos - 1 + dx;
 				int y = ypos - 1 + dy;
-				int tile = getTile(x, y);
+				int tile = getTileRaw(x, y);
 				TileSpec ts = Tiles.get(tile & LOMASK);
 				if (ts != null && ts.onPower != null) {
 					setTile(x, y,
@@ -2432,7 +2451,7 @@ public class Micropolis
 			for (int dy = 0; dy < zoneSize.height; dy++) {
 				int x = xpos - 1 + dx;
 				int y = ypos - 1 + dy;
-				int tile = getTile(x, y);
+				int tile = getTileRaw(x, y);
 				TileSpec ts = Tiles.get(tile & LOMASK);
 				if (ts != null && ts.onShutdown != null) {
 					setTile(x, y,

@@ -119,12 +119,12 @@ class MapScanner extends TileBehavior
 		if (newPower && !oldPower)
 		{
 			city.setTile(xpos, ypos, (char) (rawTile | PWRBIT));
-			city.powerZone(xpos, ypos, getZoneSizeFor(rawTile));
+			city.powerZone(xpos, ypos, getZoneSizeFor(tile));
 		}
 		else if (!newPower && oldPower)
 		{
 			city.setTile(xpos, ypos, (char) (rawTile & (~PWRBIT)));
-			city.shutdownZone(xpos, ypos, getZoneSizeFor(rawTile));
+			city.shutdownZone(xpos, ypos, getZoneSizeFor(tile));
 		}
 
 		return newPower;
@@ -167,7 +167,7 @@ class MapScanner extends TileBehavior
 		{
 			for (int x = xpos-1; x < xpos-1+bi.width; x++)
 			{
-				city.setTile(x, y, (char)(bi.members[i] | (x == xpos && y == ypos ? BULLBIT : 0)));
+				city.setTile(x, y, (char) bi.members[i]);
 				i++;
 			}
 		}
@@ -399,7 +399,7 @@ class MapScanner extends TileBehavior
 
 				if (city.testBounds(xx, yy))
 				{
-					int thCh = city.map[yy][xx];
+					int thCh = city.getTile(xx, yy);
 					if (isZoneCenter(thCh)) {
 						continue;
 					}
@@ -426,7 +426,7 @@ class MapScanner extends TileBehavior
 		boolean powerOn = checkZonePower();
 		city.comZoneCount++;
 
-		int tpop = commercialZonePop(rawTile);
+		int tpop = commercialZonePop(tile);
 		city.comPop += tpop;
 
 		int trafficGood;
@@ -480,7 +480,7 @@ class MapScanner extends TileBehavior
 		boolean powerOn = checkZonePower();
 		city.indZoneCount++;
 
-		int tpop = industrialZonePop(rawTile);
+		int tpop = industrialZonePop(tile);
 		city.indPop += tpop;
 
 		int trafficGood;
@@ -539,7 +539,7 @@ class MapScanner extends TileBehavior
 		}
 		else
 		{
-			tpop = residentialZonePop(rawTile);
+			tpop = residentialZonePop(tile);
 		}
 
 		city.resPop += tpop;
@@ -672,7 +672,7 @@ class MapScanner extends TileBehavior
 			assert houseNumber >= 0 && houseNumber < 12;
 
 			assert city.testBounds(xx, yy);
-			city.setTile(xx, yy, (char)((HOUSE + houseNumber) | BULLBIT));
+			city.setTile(xx, yy, (char)(HOUSE + houseNumber));
 		}
 	}
 
@@ -800,7 +800,7 @@ class MapScanner extends TileBehavior
 			// downgrade from full-size zone to 8 little houses
 
 			int pwrBit = (rawTile & PWRBIT);
-			city.setTile(xpos, ypos, (char)(RESCLR | BULLBIT | pwrBit));
+			city.setTile(xpos, ypos, (char)(RESCLR | pwrBit));
 			for (int x = xpos-1; x <= xpos+1; x++)
 			{
 				for (int y = ypos-1; y <= ypos+1; y++)
@@ -811,7 +811,7 @@ class MapScanner extends TileBehavior
 						{
 							// pick a random small house
 							int houseNumber = value * 3 + PRNG.nextInt(3);
-							city.setTile(x, y, (char) ((HOUSE + houseNumber) | BULLBIT));
+							city.setTile(x, y, (char) (HOUSE + houseNumber));
 						}
 					}
 				}
@@ -836,7 +836,7 @@ class MapScanner extends TileBehavior
 						int loc = city.map[y][x] & LOMASK;
 						if (loc >= LHTHR && loc <= HHTHR)
 						{ //little house
-							city.setTile(x, y, (char)((Brdr[z] + RESCLR - 4) | BULLBIT));
+							city.setTile(x, y, (char)(Brdr[z] + RESCLR - 4));
 							return;
 						}
 					}

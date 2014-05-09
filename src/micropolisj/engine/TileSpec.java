@@ -16,6 +16,7 @@ public class TileSpec
 	TileSpec animNext;
 	TileSpec onPower;
 	TileSpec onShutdown;
+	boolean canBulldoze;
 	boolean canBurn;
 	boolean canConduct;
 	boolean overWater;
@@ -23,6 +24,7 @@ public class TileSpec
 	public TileSpec owner;
 	public int ownerOffsetX;
 	public int ownerOffsetY;
+	BuildingInfo buildingInfo;
 
 	Map<String,String> attributes;
 	List<String> images;
@@ -61,13 +63,19 @@ public class TileSpec
 
 	public BuildingInfo getBuildingInfo()
 	{
-		CityDimension buildingSize = getBuildingSize();
-		if (buildingSize == null) { return null; }
+		return buildingInfo;
+	}
+
+	private void resolveBuildingInfo(Map<String,TileSpec> tileMap)
+	{
+		String tmp = getAttribute("building");
+		if (tmp == null) { return; }
 
 		BuildingInfo bi = new BuildingInfo();
 
-		bi.width = buildingSize.width;
-		bi.height = buildingSize.height;
+		String [] p2 = tmp.split("x");
+		bi.width = Integer.parseInt(p2[0]);
+		bi.height = Integer.parseInt(p2[1]);
 
 		bi.members = new short[bi.width*bi.height];
 		int startTile = tileNumber;
@@ -81,19 +89,20 @@ public class TileSpec
 			}
 		}
 
-		return bi;
+		this.buildingInfo = bi;
 	}
 
 	public CityDimension getBuildingSize()
 	{
-		String tmp = getAttribute("building");
-		if (tmp == null) { return null; }
-
-		String [] p2 = tmp.split("x");
-		return new CityDimension(
-			Integer.parseInt(p2[0]),
-			Integer.parseInt(p2[1])
-			);
+		if (buildingInfo != null) {
+			return new CityDimension(
+				buildingInfo.width,
+				buildingInfo.height
+				);
+		}
+		else {
+			return null;
+		}
 	}
 
 	public int getDescriptionNumber()
@@ -177,6 +186,7 @@ public class TileSpec
 			}
 		}
 
+		this.canBulldoze = getBooleanAttribute("bulldozable");
 		this.canBurn = !getBooleanAttribute("noburn");
 		this.canConduct = getBooleanAttribute("conducts");
 		this.overWater = getBooleanAttribute("overwater");
@@ -281,5 +291,68 @@ public class TileSpec
 	public String toString()
 	{
 		return "{tile#"+tileNumber+"}";
+	}
+
+	void resolveReferences(Map<String,TileSpec> tileMap)
+	{
+		String tmp = this.getAttribute("becomes");
+		if (tmp != null) {
+			this.animNext = tileMap.get(tmp);
+		}
+		tmp = this.getAttribute("onpower");
+		if (tmp != null) {
+			this.onPower = tileMap.get(tmp);
+		}
+		tmp = this.getAttribute("onshutdown");
+		if (tmp != null) {
+			this.onShutdown = tileMap.get(tmp);
+		}
+		tmp = this.getAttribute("building-part");
+		if (tmp != null) {
+			this.handleBuildingPart(tmp, tileMap);
+		}
+
+		resolveBuildingInfo(tileMap);
+	}
+
+	private void handleBuildingPart(String text, Map<String,TileSpec> tileMap)
+	{
+		String [] parts = text.split(",");
+		if (parts.length != 3) {
+			throw new Error("Invalid building-part specification");
+		}
+
+		this.owner = tileMap.get(parts[0]);
+		this.ownerOffsetX = Integer.parseInt(parts[1]);
+		this.ownerOffsetY = Integer.parseInt(parts[2]);
+
+		assert this.owner != null;
+		assert this.ownerOffsetX != 0 || this.ownerOffsetY != 0;
+	}
+
+	public static String [] generateTileNames(Properties recipe)
+	{
+		int ntiles = recipe.size();
+		String [] tileNames = new String[ntiles];
+		ntiles = 0;
+		for (int i = 0; recipe.containsKey(Integer.toString(i)); i++) {
+			tileNames[ntiles++] = Integer.toString(i);
+		}
+		int naturalNumberTiles = ntiles;
+
+		for (Object n_obj : recipe.keySet()) {
+			String n = (String)n_obj;
+			if (n.matches("^\\d+$")) {
+				int x = Integer.parseInt(n);
+				if (x >= 0 && x < naturalNumberTiles) {
+					assert tileNames[x].equals(n);
+					continue;
+				}
+			}
+			assert ntiles < tileNames.length;
+			tileNames[ntiles++] = n;
+		}
+		assert ntiles == tileNames.length;
+		return tileNames;
 	}
 }

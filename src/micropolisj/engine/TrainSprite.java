@@ -10,6 +10,12 @@ package micropolisj.engine;
 
 import static micropolisj.engine.TileConstants.*;
 
+/**
+ * Implements the commuter train.
+ * The commuter train appears if the city has a certain amount of
+ * railroad track. It wanders around the city's available track
+ * randomly.
+ */
 public class TrainSprite extends Sprite
 {
 	static int [] Cx = { 0, 16, 0, -16 };
@@ -26,6 +32,12 @@ public class TrainSprite extends Sprite
 	static final int FRAME_SW_NE = 4;
 	static final int FRAME_UNDERWATER = 5;
 
+	static final int DIR_NORTH = 0;
+	static final int DIR_EAST = 1;
+	static final int DIR_SOUTH = 2;
+	static final int DIR_WEST = 3;
+	static final int DIR_NONE = 4; //not moving
+
 	public TrainSprite(Micropolis engine, int xpos, int ypos)
 	{
 		super(engine, SpriteKind.TRA);
@@ -33,7 +45,7 @@ public class TrainSprite extends Sprite
 		this.y = ypos * 16 + TRA_GROOVE_Y;
 		this.offx = -16;
 		this.offy = -16;
-		this.dir = 4;   //not moving
+		this.dir = DIR_NONE;   //not moving
 	}
 
 	@Override
@@ -51,7 +63,7 @@ public class TrainSprite extends Sprite
 			int d1 = city.PRNG.nextInt(4);
 			for (int z = d1; z < d1 + 4; z++) {
 				int d2 = z % 4;
-				if (this.dir != 4) { //impossible?
+				if (this.dir != DIR_NONE) { //impossible?
 					if (d2 == (this.dir + 2) % 4)
 						continue;
 				}
@@ -61,11 +73,11 @@ public class TrainSprite extends Sprite
 					(c == RAILVPOWERH) ||
 					(c == RAILHPOWERV))
 				{
-					if ((this.dir != d2) && (this.dir != 4)) {
+					if ((this.dir != d2) && (this.dir != DIR_NONE)) {
 						if (this.dir + d2 == 3)
-							this.frame = 3;
+							this.frame = FRAME_NW_SE;
 						else
-							this.frame = 4;
+							this.frame = FRAME_SW_NE;
 					}
 					else {
 						this.frame = TrainPic2[d2];
@@ -73,18 +85,18 @@ public class TrainSprite extends Sprite
 
 					if ((c == RAILBASE) || (c == (RAILBASE+1))) {
 						//underwater
-						this.frame = 5;
+						this.frame = FRAME_UNDERWATER;
 					}
 					this.dir = d2;
 					return;
 				}
 			}
-			if (this.dir == 4) {
+			if (this.dir == DIR_NONE) {
 				// train has nowhere to go, so retire
 				this.frame = 0;
 				return;
 			}
-			this.dir = 4;
+			this.dir = DIR_NONE;
 		}
 	}
 }

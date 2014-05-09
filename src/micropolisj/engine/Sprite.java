@@ -10,6 +10,13 @@ package micropolisj.engine;
 
 import static micropolisj.engine.TileConstants.*;
 
+/**
+ * Represents a mobile entity on the city map, such as a tornado
+ * or a train. There can be any number present in a city, and each one
+ * gets a chance to act on every tick of the simulation.
+ *
+ * @see Micropolis#moveObjects
+ */
 public abstract class Sprite
 {
 	Micropolis city;
@@ -44,7 +51,7 @@ public abstract class Sprite
 		int xpos = x / 16;
 		int ypos = y / 16;
 		if (city.testBounds(xpos, ypos)) {
-			return (city.getTile(xpos, ypos) & LOMASK);
+			return city.getTile(xpos, ypos);
 		} else {
 			return -1;
 		}
@@ -171,19 +178,18 @@ public abstract class Sprite
 		if (!city.testBounds(xpos, ypos))
 			return;
 
-		int z = city.getTile(xpos, ypos);
-		int t = z & LOMASK;
+		int t = city.getTile(xpos, ypos);
 
 		if (t >= TREEBASE) {
-			if (isBridge(z)) {
+			if (isBridge(t)) {
 				city.setTile(xpos, ypos, RIVER);
 				return;
 			}
-			if (!isCombustible(z)) {
+			if (!isCombustible(t)) {
 				return; //cannot destroy it
 			}
-			if (isZoneCenter(z)) {
-				city.killZone(xpos, ypos, z);
+			if (isZoneCenter(t)) {
+				city.killZone(xpos, ypos, t);
 				if (t > RZB) {
 					city.makeExplosion(xpos, ypos);
 				}
@@ -192,8 +198,7 @@ public abstract class Sprite
 				city.setTile(xpos, ypos, RIVER);
 			}
 			else {
-				city.setTile(xpos, ypos,
-					(char) (TINYEXP | BULLBIT));
+				city.setTile(xpos, ypos, TINYEXP);
 			}
 		}
 	}

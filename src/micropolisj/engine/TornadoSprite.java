@@ -8,6 +8,9 @@
 
 package micropolisj.engine;
 
+/**
+ * Implements a tornado (one of the Micropolis disasters).
+ */
 public class TornadoSprite extends Sprite
 {
 	static int [] CDx = {  2,  3,  2,  0, -2, -3 };
@@ -75,7 +78,11 @@ public class TornadoSprite extends Sprite
 			return;
 		}
 
-		// FIXME- the original code checks here for an ending condition
+		if (this.count == 0 && city.PRNG.nextInt(501) == 0) {
+			// early termination
+			this.frame = 0;
+			return;
+		}
 
 		destroyTile(x/16, y/16);
 	}

@@ -10,6 +10,11 @@ package micropolisj.engine;
 
 import static micropolisj.engine.TileConstants.*;
 
+/**
+ * Implements an explosion.
+ * An explosion occurs when certain sprites collide,
+ * or when a zone is demolished by fire.
+ */
 public class ExplosionSprite extends Sprite
 {
 	public ExplosionSprite(Micropolis engine, int x, int y)
@@ -52,11 +57,10 @@ public class ExplosionSprite extends Sprite
 		if (!city.testBounds(xpos, ypos))
 			return;
 
-		int z = city.getTile(xpos, ypos);
-		int t = z & LOMASK;
-		if (!isCombustible(z) && t != DIRT)
+		int t = city.getTile(xpos, ypos);
+		if (!isCombustible(t) && t != DIRT)
 			return;
-		if (isZoneCenter(z))
+		if (isZoneCenter(t))
 			return;
 		city.setTile(xpos, ypos, (char)(FIRE + city.PRNG.nextInt(4)));
 	}
