@@ -1,6 +1,7 @@
 package micropolis.android;
 
 import micropolisj.engine.*;
+import static micropolisj.engine.TileConstants.CLEAR;
 
 import java.util.HashSet;
 
@@ -41,6 +42,8 @@ public class MicropolisView extends View
 
 	boolean allowTouchMotion = true;
 	MicropolisTool currentTool = null;
+	ToolStroke currentToolStroke = null;
+	ToolPreview toolPreview = null;
 
 	boolean blinkUnpoweredZones = true;
 	HashSet<CityLocation> unpoweredZones = new HashSet<CityLocation>();
@@ -131,6 +134,23 @@ public class MicropolisView extends View
 		scrollBounds.bottom = tileSize*city.getHeight();
 	}
 
+	Rect getTileBounds(CityRect box)
+	{
+		float [] pts = {
+			box.x * tileSize,
+			box.y * tileSize,
+			(box.x+box.width) * tileSize,
+			(box.y+box.height) * tileSize
+			};
+		renderMatrix.mapPoints(pts);
+		return new Rect(
+			(int)Math.floor(pts[0]),
+			(int)Math.floor(pts[1]),
+			(int)Math.ceil(pts[2]),
+			(int)Math.ceil(pts[3])
+			);
+	}
+
 	Rect getTileBounds(int xpos, int ypos)
 	{
 		float [] pts = {
@@ -169,7 +189,7 @@ public class MicropolisView extends View
 
 		for (int y = minY; y < maxY; y++) {
 			for (int x = minX; x < maxX; x++) {
-				int t = city.getTile(x, y) & TileConstants.LOMASK;
+				int t = city.getTile(x, y);
 				if (blinkUnpoweredZones &&
 					TileConstants.isZoneCenter(t) &&
 					!city.isTilePowered(x, y))
@@ -180,6 +200,13 @@ public class MicropolisView extends View
 					}
 				}
 
+				if (toolPreview != null) {
+					int c = toolPreview.getTile(x, y);
+					if (c != CLEAR) {
+						t = c;
+					}
+				}
+
 				tiles.drawTo(canvas, t, x, y);
 			}
 		}
@@ -187,6 +214,20 @@ public class MicropolisView extends View
 		canvas.restore();
 
 		maybeStartBlinkTimer();
+	}
+
+	void setToolPreview(ToolPreview newPreview)
+	{
+		if (toolPreview != null) {
+			CityRect b = toolPreview.getBounds();
+			invalidate(getTileBounds(b));
+		}
+
+		toolPreview = newPreview;
+		if (toolPreview != null) {
+			CityRect b = toolPreview.getBounds();
+			invalidate(getTileBounds(b));
+		}
 	}
 
 	void maybeStartBlinkTimer()
@@ -226,6 +267,19 @@ public class MicropolisView extends View
 
 		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
+		{
+			CityLocation loc = getLocation(e1.getX(), e1.getY());
+			if (inToolPreview(loc)) {
+				processToolDrag(loc,
+					getLocation(e2.getX(), e2.getY())
+					);
+				return true;
+			}
+
+			return onRealScroll(e1, e2, distanceX, distanceY);
+		}
+
+		boolean onRealScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
 		{
 			originX += distanceX / scaleFactor;
 			originY += distanceY / scaleFactor;
@@ -466,13 +520,46 @@ public class MicropolisView extends View
 		}
 	}
 
+	boolean inToolPreview(CityLocation loc)
+	{
+		if (toolPreview != null) {
+			int c = toolPreview.getTile(loc.x, loc.y);
+			return c != CLEAR;
+		}
+		return false;
+	}
+
+	private void processToolDrag(CityLocation origLoc, CityLocation newLoc)
+	{
+		currentToolStroke.dragTo(newLoc.x, newLoc.y);
+		setToolPreview(currentToolStroke.getPreview());
+	}
+
 	private void processTool(float x, float y)
 	{
 		try {
 
 		CityLocation loc = getLocation(x, y);
+		if (currentToolStroke != null) {
+
+			if (inToolPreview(loc)) {
+				currentToolStroke.apply();
+				setToolPreview(null);
+				currentToolStroke = null;
+				return;
+			}
+			else {
+				setToolPreview(null);
+				currentToolStroke = null;
+				// continue on...
+			}
+		}
+
 		if (currentTool != null) {
-			currentTool.apply(city, loc.x, loc.y);
+			currentToolStroke = currentTool.beginStroke(city, loc.x, loc.y);
+			setToolPreview(
+				currentToolStroke.getPreview()
+				);
 		}
 		else {
 			inspectLocation(loc);
@@ -506,7 +593,13 @@ public class MicropolisView extends View
 
 	void setTool(MicropolisTool tool)
 	{
+		if (this.currentTool == tool) {
+			return;
+		}
+
 		this.currentTool = tool;
+		this.currentToolStroke = null;
+		setToolPreview(null);
 	}
 
 	private void onTileChanged(int xpos, int ypos)
