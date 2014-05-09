@@ -107,7 +107,7 @@ public class MainActivity extends Activity
 		String tmp = b.getString("currentTool");
 		if (tmp != null) {
 			setToolsVisibility(View.GONE);
-			findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
+			setOkCancelVisibility(View.VISIBLE);
 			setTool(
 				MicropolisTool.valueOf(tmp)
 				);
@@ -210,6 +210,12 @@ public class MainActivity extends Activity
 		advanceSim.run();
 	}
 
+	private void setOkCancelVisibility(int v)
+	{
+		findViewById(R.id.ok_btn).setVisibility(v);
+		findViewById(R.id.cancel_btn).setVisibility(v);
+	}
+
 	private void setToolsVisibility(int v)
 	{
 		findViewById(R.id.bulldozer_tool_btn).setVisibility(v);
@@ -227,28 +233,28 @@ public class MainActivity extends Activity
 	public void onBulldozerToolClicked(View view)
 	{
 		setToolsVisibility(View.GONE);
-		findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
+		setOkCancelVisibility(View.VISIBLE);
 		setTool(MicropolisTool.BULLDOZER);
 	}
 
 	public void onRoadToolClicked(View view)
 	{
 		setToolsVisibility(View.GONE);
-		findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
+		setOkCancelVisibility(View.VISIBLE);
 		setTool(MicropolisTool.ROADS);
 	}
 
 	public void onRailToolClicked(View view)
 	{
 		setToolsVisibility(View.GONE);
-		findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
+		setOkCancelVisibility(View.VISIBLE);
 		setTool(MicropolisTool.RAIL);
 	}
 
 	public void onWireToolClicked(View view)
 	{
 		setToolsVisibility(View.GONE);
-		findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
+		setOkCancelVisibility(View.VISIBLE);
 		setTool(MicropolisTool.WIRE);
 	}
 
@@ -269,21 +275,21 @@ public class MainActivity extends Activity
 	public void onResZoneToolClicked(View view)
 	{
 		setToolsVisibility(View.GONE);
-		findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
+		setOkCancelVisibility(View.VISIBLE);
 		setTool(MicropolisTool.RESIDENTIAL);
 	}
 
 	public void onComZoneToolClicked(View view)
 	{
 		setToolsVisibility(View.GONE);
-		findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
+		setOkCancelVisibility(View.VISIBLE);
 		setTool(MicropolisTool.COMMERCIAL);
 	}
 
 	public void onIndZoneToolClicked(View view)
 	{
 		setToolsVisibility(View.GONE);
-		findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
+		setOkCancelVisibility(View.VISIBLE);
 		setTool(MicropolisTool.INDUSTRIAL);
 	}
 
@@ -297,14 +303,25 @@ public class MainActivity extends Activity
 	public void onPickBuilding(MicropolisTool buildingTool)
 	{
 		setToolsVisibility(View.GONE);
-		findViewById(R.id.ok_btn).setVisibility(View.VISIBLE);
+		setOkCancelVisibility(View.VISIBLE);
 		setTool(buildingTool);
 	}
 
 	public void onOkClicked(View view)
 	{
-		findViewById(R.id.ok_btn).setVisibility(View.GONE);
+		setOkCancelVisibility(View.GONE);
 		setToolsVisibility(View.VISIBLE);
+
+		getMicropolisView().completeToolStroke();
+		setTool(null);
+	}
+
+	public void onCancelClicked(View view)
+	{
+		setOkCancelVisibility(View.GONE);
+		setToolsVisibility(View.VISIBLE);
+
+		getMicropolisView().abortToolStroke();
 		setTool(null);
 	}
 

@@ -112,5 +112,13 @@
 		android:onClick="onOkClicked"
 		android:visibility="gone"
 		/>
+	<Button
+		android:id="@+id/cancel_btn"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:text="@string/tool_cancel_btn"
+		android:onClick="onCancelClicked"
+		android:visibility="gone"
+		/>
 </LinearLayout>
 </LinearLayout>

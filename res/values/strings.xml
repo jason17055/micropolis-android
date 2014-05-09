@@ -5,6 +5,7 @@
     <string name="hello_world">Welcome to Micropolis!</string>
     <string name="button_send">Home Button</string>
 	<string name="tool_ok_btn">OK</string>
+	<string name="tool_cancel_btn">Cancel</string>
 	<string name="run_sim">Run</string>
 	<string name="pause_sim">Pause</string>
 	<string name="funds_ind_val">Zero Funds</string>

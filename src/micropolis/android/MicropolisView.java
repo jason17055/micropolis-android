@@ -543,16 +543,12 @@ public class MicropolisView extends View
 		if (currentToolStroke != null) {
 
 			if (inToolPreview(loc)) {
-				currentToolStroke.apply();
-				setToolPreview(null);
-				currentToolStroke = null;
+				// ignore taps inside preview area
 				return;
 			}
-			else {
-				setToolPreview(null);
-				currentToolStroke = null;
-				// continue on...
-			}
+
+			// to allow a new stroke to start...
+			completeToolStroke();
 		}
 
 		if (currentTool != null) {
@@ -597,9 +593,23 @@ public class MicropolisView extends View
 			return;
 		}
 
+		abortToolStroke();
 		this.currentTool = tool;
+	}
+
+	void abortToolStroke()
+	{
 		this.currentToolStroke = null;
 		setToolPreview(null);
+	}
+
+	void completeToolStroke()
+	{
+		if (currentToolStroke != null) {
+			currentToolStroke.apply();
+			currentToolStroke = null;
+			setToolPreview(null);
+		}
 	}
 
 	private void onTileChanged(int xpos, int ypos)
