@@ -483,7 +483,7 @@ public class MicropolisView extends View
 		{
 			AlertDialog alert = new AlertDialog.Builder(getContext()).create();
 			alert.setTitle("Error");
-			alert.setMessage(e.toString());
+			alert.setMessage(e.toString() + e.getStackTrace()[0].toString());
 			alert.show();
 		}
 	}

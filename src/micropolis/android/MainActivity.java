@@ -437,7 +437,26 @@ public class MainActivity extends Activity
 	//implements MicropolisView.InspectHelper
 	public void inspectLocation(CityLocation loc)
 	{
-		DialogFragment dlg = new InspectLocationFragment();
+		assert loc != null;
+
+		TileSpec tspec = Tiles.get(
+			city.getTile(loc.x, loc.y)
+			);
+		if (tspec != null && tspec.owner != null) {
+			CityLocation pLoc = new CityLocation(loc.x-tspec.ownerOffsetX, loc.y-tspec.ownerOffsetY);
+			TileSpec baseSpec = Tiles.get(
+				city.getTile(pLoc.x, pLoc.y)
+				);
+
+			if (baseSpec == tspec.owner) {
+				loc = pLoc;
+				tspec = baseSpec;
+			}
+		}
+
+		ZoneStatus z = city.queryZoneStatus(loc.x, loc.y);
+
+		DialogFragment dlg = new InspectLocationFragment(z);
 		dlg.show(getFragmentManager(), "InspectLocationFragment");
 	}
 }
