@@ -35,6 +35,8 @@ public class MicropolisView extends View
 
 	static final float SCALE_MOMENTUM_FACTOR = 0.9f;
 	static final int BLINK_INTERVAL_MS = 500;
+	static final int PREVIEW_BLINK_ON = 400;
+	static final int PREVIEW_BLINK_OFF = 100;
 
 	float scaleFocusX = 0.0f;
 	float scaleFocusY = 0.0f;
@@ -47,8 +49,12 @@ public class MicropolisView extends View
 
 	boolean blinkUnpoweredZones = true;
 	HashSet<CityLocation> unpoweredZones = new HashSet<CityLocation>();
-	boolean blink;
-	boolean blinkScheduled;
+	boolean powerBlink;
+	boolean powerBlinkScheduled;
+
+	HashSet<CityLocation> previewZones = new HashSet<CityLocation>();
+	boolean previewBlink;
+	boolean previewBlinkScheduled;
 
 	public MicropolisView(Context context, AttributeSet attrs)
 	{
@@ -195,7 +201,7 @@ public class MicropolisView extends View
 					!city.isTilePowered(x, y))
 				{
 					unpoweredZones.add(new CityLocation(x, y));
-					if (blink) {
+					if (powerBlink) {
 						t = TileConstants.LIGHTNINGBOLT;
 					}
 				}
@@ -203,7 +209,11 @@ public class MicropolisView extends View
 				if (toolPreview != null) {
 					int c = toolPreview.getTile(x, y);
 					if (c != CLEAR) {
-						t = c;
+
+						previewZones.add(new CityLocation(x, y));
+						if (previewBlink) {
+							t = c;
+						}
 					}
 				}
 
@@ -232,20 +242,29 @@ public class MicropolisView extends View
 
 	void maybeStartBlinkTimer()
 	{
-		if (!blinkScheduled && !unpoweredZones.isEmpty()) {
+		if (!powerBlinkScheduled && !unpoweredZones.isEmpty()) {
 
 			myHandler.postDelayed(new Runnable() {
 				public void run() {
 					doBlink();
 				}}, BLINK_INTERVAL_MS);
-			blinkScheduled = true;
+			powerBlinkScheduled = true;
+		}
+
+		if (!previewBlinkScheduled && !previewZones.isEmpty()) {
+
+			myHandler.postDelayed(new Runnable() {
+				public void run() {
+					doBlinkPreview();
+				}}, previewBlink ? PREVIEW_BLINK_ON : PREVIEW_BLINK_OFF);
+			previewBlinkScheduled = true;
 		}
 	}
 
 	public void doBlink()
 	{
-		blinkScheduled = false;
-		blink = !blink;
+		powerBlinkScheduled = false;
+		powerBlink = !powerBlink;
 
 		for (CityLocation loc : unpoweredZones) {
 			
@@ -253,6 +272,19 @@ public class MicropolisView extends View
 			invalidate(r);
 		}
 		unpoweredZones.clear();
+	}
+
+	public void doBlinkPreview()
+	{
+		previewBlinkScheduled = false;
+		previewBlink = !previewBlink;
+
+		for (CityLocation loc : previewZones) {
+			
+			Rect r = getTileBounds(loc.x, loc.y);
+			invalidate(r);
+		}
+		previewZones.clear();
 	}
 
 	class MyGestureListener extends GestureDetector.SimpleOnGestureListener
