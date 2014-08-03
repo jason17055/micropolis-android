@@ -7,6 +7,10 @@
 		android:title="@string/pause_sim"
 		android:showAsAction="ifRoom" />
 
+	<item android:id="@+id/action_budget"
+		android:title="@string/budget"
+		android:showAsAction="never" />
+
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"

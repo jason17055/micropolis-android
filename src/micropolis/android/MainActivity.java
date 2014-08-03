@@ -143,6 +143,9 @@ public class MainActivity extends Activity
 		case R.id.action_pause_sim:
 			doPauseSim();
 			return true;
+		case R.id.action_budget:
+			doBudget();
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -219,6 +222,12 @@ public class MainActivity extends Activity
 		simEnabled = true;
 		advanceSim = new MyAdvancer();
 		advanceSim.run();
+	}
+
+	void doBudget()
+	{
+		DialogFragment dlg = new BudgetFragment(city);
+		dlg.show(getFragmentManager(), "BudgetFragment");
 	}
 
 	private void setOkCancelVisibility(int v)

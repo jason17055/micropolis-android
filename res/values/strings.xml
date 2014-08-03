@@ -9,6 +9,7 @@
 	<string name="run_sim">Run</string>
 	<string name="pause_sim">Pause</string>
 	<string name="funds_ind_val">Zero Funds</string>
+	<string name="budget">Budget</string>
 
 	<!-- PickBuilding Dialog -->
 	<string name="pickbuilding_caption">Choose Building</string>
@@ -23,4 +24,8 @@
 		<item>Hard</item>
 	</string-array>
 
+	<!-- Budget Dialog -->
+	<string name="budgetdlg_roadfund_caption">Road Funding (%):</string>
+	<string name="budgetdlg_policefund_caption">Police Funding (%):</string>
+	<string name="budgetdlg_firefund_caption">Fire Funding (%):</string>
 </resources>

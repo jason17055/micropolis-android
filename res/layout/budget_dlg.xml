@@ -1,0 +1,62 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	>
+
+<LinearLayout
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	>
+
+<TableLayout
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:layout_weight="1"
+	>
+
+<TableRow>
+<TextView
+	android:text="Tax Rate:"
+	/>
+<EditText
+	android:id="@+id/budgetdlg_taxrate"
+	android:text="7"
+	/>
+</TableRow>
+
+<TableRow>
+<TextView
+	android:text="@string/budgetdlg_roadfund_caption"
+	/>
+<EditText
+	android:id="@+id/budgetdlg_roadfund"
+	android:text="100"
+	/>
+</TableRow>
+
+<TableRow>
+<TextView
+	android:text="@string/budgetdlg_policefund_caption"
+	/>
+<EditText
+	android:id="@+id/budgetdlg_policefund"
+	android:text="100"
+	/>
+</TableRow>
+
+<TableRow>
+<TextView
+	android:text="@string/budgetdlg_firefund_caption"
+	/>
+<EditText
+	android:id="@+id/budgetdlg_firefund"
+	android:text="100"
+	/>
+</TableRow>
+
+</TableLayout>
+
+</LinearLayout>
+
+</FrameLayout>

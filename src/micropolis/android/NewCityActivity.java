@@ -68,6 +68,7 @@ public class NewCityActivity extends Activity
 	{
 		curCity = new Micropolis();
 		new MapGenerator(curCity).generateNewCity();
+		curCity.setFunds(20000);
 	}
 
 	public void nextMapClicked(View btn)
