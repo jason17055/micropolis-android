@@ -34,6 +34,7 @@ public class MainActivity extends Activity
 	static final String ST_MICROPOLIS = "micropolis.city";
 	/** Used in Intent. */
 	static final String EXTRA_CITY_NAME = "micropolis.cityName";
+	static final String EXTRA_SIM_DATA = "micropolis.cityData";
 
 	private boolean restoreCity(Bundle st)
 	{
@@ -81,6 +82,20 @@ public class MainActivity extends Activity
 		this.city = new Micropolis();
 
 		Intent intent = getIntent();
+		byte [] cityData = intent.getByteArrayExtra(EXTRA_SIM_DATA);
+		if (cityData != null) {
+
+			ByteArrayInputStream bytes = new ByteArrayInputStream(cityData);
+			try {
+				city.load(bytes);
+				return;
+			}
+			catch (IOException e) {
+				// should not happen
+				throw new RuntimeException(e);
+			}
+		}
+
 		String cityName = intent.getStringExtra(EXTRA_CITY_NAME);
 		if (cityName != null) {
 
@@ -92,10 +107,6 @@ public class MainActivity extends Activity
 				throw new RuntimeException(e);
 			}
 
-		}
-		else {
-			new MapGenerator(city).generateNewCity();
-			city.setFunds(20000);
 		}
 	}
 

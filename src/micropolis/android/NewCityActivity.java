@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
+import java.io.*;
 import java.util.*;
 
 public class NewCityActivity extends Activity
@@ -46,9 +47,21 @@ public class NewCityActivity extends Activity
 
 	public void playThisMapClicked(View btn)
 	{
+		try
+		{
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		curCity.save(bytes);
+
 		Intent intent = new Intent(this, MainActivity.class);
+		intent.putExtra(MainActivity.EXTRA_SIM_DATA, bytes.toByteArray());
 		startActivity(intent);
 		finish();
+		}
+		catch (IOException e)
+		{
+			// unexpected for writing to a byte array
+			throw new RuntimeException(e);
+		}
 	}
 
 	void generateCity()
