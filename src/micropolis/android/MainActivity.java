@@ -146,6 +146,15 @@ public class MainActivity extends Activity
 		case R.id.action_budget:
 			doBudget();
 			return true;
+		case R.id.menu_no_overlay:
+			doMapOverlay(MapState.ALL);
+			return true;
+		case R.id.menu_popden_overlay:
+			doMapOverlay(MapState.POPDEN_OVERLAY);
+			return true;
+		case R.id.menu_growthrate_overlay:
+			doMapOverlay(MapState.GROWTHRATE_OVERLAY);
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -228,6 +237,11 @@ public class MainActivity extends Activity
 	{
 		DialogFragment dlg = new BudgetFragment(city);
 		dlg.show(getFragmentManager(), "BudgetFragment");
+	}
+
+	void doMapOverlay(MapState overlayState)
+	{
+		getMicropolisView().setOverlay(overlayState);
 	}
 
 	private void setOkCancelVisibility(int v)

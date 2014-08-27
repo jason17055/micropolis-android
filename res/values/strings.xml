@@ -10,6 +10,7 @@
 	<string name="pause_sim">Pause</string>
 	<string name="funds_ind_val">Zero Funds</string>
 	<string name="budget">Budget</string>
+	<string name="map_overlays">Overlays</string>
 
 	<!-- PickBuilding Dialog -->
 	<string name="pickbuilding_caption">Choose Building</string>
@@ -28,4 +29,10 @@
 	<string name="budgetdlg_roadfund_caption">Road Funding (%):</string>
 	<string name="budgetdlg_policefund_caption">Police Funding (%):</string>
 	<string name="budgetdlg_firefund_caption">Fire Funding (%):</string>
+
+	<!-- Overlays menu -->
+	<string name="menu_no_overlay">None</string>
+	<string name="menu_popden_overlay">Population Density</string>
+	<string name="menu_growthrate_overlay">Growth Rate</string>
+
 </resources>

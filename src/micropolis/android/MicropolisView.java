@@ -46,6 +46,7 @@ public class MicropolisView extends View
 	MicropolisTool currentTool = null;
 	ToolStroke currentToolStroke = null;
 	ToolPreview toolPreview = null;
+	MapState currentOverlay = MapState.ALL;
 
 	boolean blinkUnpoweredZones = true;
 	HashSet<CityLocation> unpoweredZones = new HashSet<CityLocation>();
@@ -96,6 +97,12 @@ public class MicropolisView extends View
 		originY = (scrollBounds.top + scrollBounds.bottom) / 2.0f;
 
 		city.addMapListener(myMapListener);
+		invalidate();
+	}
+
+	void setOverlay(MapState mapState)
+	{
+		currentOverlay = mapState;
 		invalidate();
 	}
 
@@ -221,9 +228,63 @@ public class MicropolisView extends View
 			}
 		}
 
+		switch (currentOverlay) {
+		case POPDEN_OVERLAY:
+			drawPopDensity(canvas);
+			break;
+		}
+
 		canvas.restore();
 
 		maybeStartBlinkTimer();
+	}
+
+	void drawPopDensity(Canvas canvas)
+	{
+		int [][] A = city.popDensity;
+
+		for (int y = 0; y < A.length; y++) {
+			for (int x = 0; x < A[y].length; x++) {
+				maybeDrawRect(canvas, getOverlayColor(A[y][x]),
+					new Rect(
+						x * 2 * tileSize,
+						y * 2 * tileSize,
+						(x+1) * 2 * tileSize,
+						(y+1) * 2 * tileSize
+					));
+			}
+		}
+	}
+
+	void maybeDrawRect(Canvas canvas, int argb, Rect rect)
+	{
+		Paint p = new Paint();
+		p.setColor(argb);
+		canvas.drawRect(rect, p);
+	}
+
+	static final int VAL_LOW = 0xbfbfbf;
+	static final int VAL_MEDIUM = 0xffff00;
+	static final int VAL_HIGH = 0xff7f00;
+	static final int VAL_VERYHIGH = 0xff0000;
+
+	int getOverlayColor(int x)
+	{
+		if (x < 50) {
+			return 0;
+		}
+		else if (x < 100) {
+			return 0x88000000 | VAL_LOW;
+		}
+		else if (x < 150) {
+			return 0x88000000 | VAL_MEDIUM;
+		}
+		else if (x < 200) {
+			return 0x88000000 | VAL_HIGH;
+		}
+		else {
+			return 0x88000000 | VAL_VERYHIGH;
+		}
 	}
 
 	void setToolPreview(ToolPreview newPreview)

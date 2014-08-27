@@ -11,6 +11,21 @@
 		android:title="@string/budget"
 		android:showAsAction="never" />
 
+	<item android:id="@+id/action_overlays"
+		android:title="@string/map_overlays"
+		android:showAsAction="never">
+	<menu>
+	<group android:checkableBehavior="single">
+		<item android:id="@+id/menu_no_overlay"
+			android:title="@string/menu_no_overlay"/>
+		<item android:id="@+id/menu_popden_overlay"
+			android:title="@string/menu_popden_overlay"/>
+		<item android:id="@+id/menu_growthrate_overlay"
+			android:title="@string/menu_growthrate_overlay"/>
+	</group>
+	</menu>
+	</item>
+
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
