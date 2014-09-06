@@ -400,6 +400,8 @@ public class MicropolisView extends View
 
 	void maybeDrawRect(Canvas canvas, int argb, Rect rect)
 	{
+		if (argb == 0) { return; }
+
 		Paint p = new Paint();
 		p.setColor(argb);
 		canvas.drawRect(rect, p);
