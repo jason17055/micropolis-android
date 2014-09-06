@@ -235,8 +235,14 @@ public class MicropolisView extends View
 		case GROWTHRATE_OVERLAY:
 			drawRateOfGrowth(canvas);
 			break;
+		case LANDVALUE_OVERLAY:
+			drawLandValueOverlay(canvas);
+			break;
 		case POLLUTE_OVERLAY:
 			drawPollutionMap(canvas);
+			break;
+		case TRAFFIC_OVERLAY:
+			drawTrafficOverlay(canvas);
 			break;
 		case CRIME_OVERLAY:
 			drawCrimeMap(canvas);
@@ -288,6 +294,24 @@ public class MicropolisView extends View
 		}
 	}
 
+	void drawLandValueOverlay(Canvas canvas)
+	{
+		int w = city.getWidth();
+		int h = city.getHeight();
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
+				int v = city.getLandValue(x, y);
+				maybeDrawRect(canvas, getOverlayColor(v),
+					new Rect(
+						x * tileSize,
+						y * tileSize,
+						(x+1) * tileSize,
+						(y+1) * tileSize
+					));
+			}
+		}
+	}
+
 	void drawPollutionMap(Canvas canvas)
 	{
 		int [][] A = city.pollutionMem;
@@ -300,6 +324,24 @@ public class MicropolisView extends View
 						y * 2 * tileSize,
 						(x+1) * 2 * tileSize,
 						(y+1) * 2 * tileSize
+					));
+			}
+		}
+	}
+
+	void drawTrafficOverlay(Canvas canvas)
+	{
+		int w = city.getWidth();
+		int h = city.getHeight();
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
+				int d = city.getTrafficDensity(x, y);
+				maybeDrawRect(canvas, getOverlayColor(d),
+					new Rect(
+						x * tileSize,
+						y * tileSize,
+						(x+1) * tileSize,
+						(y+1) * tileSize
 					));
 			}
 		}
