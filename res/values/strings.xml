@@ -34,5 +34,12 @@
 	<string name="menu_no_overlay">None</string>
 	<string name="menu_popden_overlay">Population Density</string>
 	<string name="menu_growthrate_overlay">Growth Rate</string>
+	<string name="menu_landvalue_overlay">Land Value</string>
+	<string name="menu_crime_overlay">Crime Rate</string>
+	<string name="menu_pollute_overlay">Pollution</string>
+	<string name="menu_traffic_overlay">Traffic Density</string>
+	<string name="menu_power_overlay">Power Grid</string>
+	<string name="menu_fire_overlay">Fire Coverage</string>
+	<string name="menu_police_overlay">Police Coverage</string>
 
 </resources>

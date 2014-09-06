@@ -16,12 +16,16 @@
 		android:showAsAction="never">
 	<menu>
 	<group android:checkableBehavior="single">
-		<item android:id="@+id/menu_no_overlay"
-			android:title="@string/menu_no_overlay"/>
-		<item android:id="@+id/menu_popden_overlay"
-			android:title="@string/menu_popden_overlay"/>
-		<item android:id="@+id/menu_growthrate_overlay"
-			android:title="@string/menu_growthrate_overlay"/>
+		<item android:id="@+id/menu_no_overlay"         android:title="@string/menu_no_overlay"/>
+		<item android:id="@+id/menu_popden_overlay"     android:title="@string/menu_popden_overlay"/>
+		<item android:id="@+id/menu_growthrate_overlay" android:title="@string/menu_growthrate_overlay"/>
+		<item android:id="@+id/menu_landvalue_overlay"  android:title="@string/menu_landvalue_overlay"/>
+		<item android:id="@+id/menu_crime_overlay"      android:title="@string/menu_crime_overlay"/>
+		<item android:id="@+id/menu_pollute_overlay"    android:title="@string/menu_pollute_overlay"/>
+		<item android:id="@+id/menu_traffic_overlay"    android:title="@string/menu_traffic_overlay"/>
+		<item android:id="@+id/menu_power_overlay"      android:title="@string/menu_power_overlay"/>
+		<item android:id="@+id/menu_fire_overlay"       android:title="@string/menu_fire_overlay"/>
+		<item android:id="@+id/menu_police_overlay"     android:title="@string/menu_police_overlay"/>
 	</group>
 	</menu>
 	</item>

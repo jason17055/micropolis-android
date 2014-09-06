@@ -155,6 +155,27 @@ public class MainActivity extends Activity
 		case R.id.menu_growthrate_overlay:
 			doMapOverlay(MapState.GROWTHRATE_OVERLAY);
 			return true;
+		case R.id.menu_landvalue_overlay:
+			doMapOverlay(MapState.LANDVALUE_OVERLAY);
+			return true;
+		case R.id.menu_crime_overlay:
+			doMapOverlay(MapState.CRIME_OVERLAY);
+			return true;
+		case R.id.menu_pollute_overlay:
+			doMapOverlay(MapState.POLLUTE_OVERLAY);
+			return true;
+		case R.id.menu_traffic_overlay:
+			doMapOverlay(MapState.TRAFFIC_OVERLAY);
+			return true;
+		case R.id.menu_power_overlay:
+			doMapOverlay(MapState.POWER_OVERLAY);
+			return true;
+		case R.id.menu_fire_overlay:
+			doMapOverlay(MapState.FIRE_OVERLAY);
+			return true;
+		case R.id.menu_police_overlay:
+			doMapOverlay(MapState.POLICE_OVERLAY);
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
