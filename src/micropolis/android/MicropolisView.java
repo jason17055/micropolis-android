@@ -232,6 +232,21 @@ public class MicropolisView extends View
 		case POPDEN_OVERLAY:
 			drawPopDensity(canvas);
 			break;
+		case GROWTHRATE_OVERLAY:
+			drawRateOfGrowth(canvas);
+			break;
+		case POLLUTE_OVERLAY:
+			drawPollutionMap(canvas);
+			break;
+		case CRIME_OVERLAY:
+			drawCrimeMap(canvas);
+			break;
+		case FIRE_OVERLAY:
+			drawFireRadius(canvas);
+			break;
+		case POLICE_OVERLAY:
+			drawPoliceRadius(canvas);
+			break;
 		}
 
 		canvas.restore();
@@ -256,6 +271,91 @@ public class MicropolisView extends View
 		}
 	}
 
+	void drawRateOfGrowth(Canvas canvas)
+	{
+		int [][] A = city.rateOGMem;
+
+		for (int y = 0; y < A.length; y++) {
+			for (int x = 0; x < A[y].length; x++) {
+				maybeDrawRect(canvas, getOverlayColor_rog(A[y][x]),
+					new Rect(
+						x * 8 * tileSize,
+						y * 8 * tileSize,
+						(x+1) * 8 * tileSize,
+						(y+1) * 8 * tileSize
+					));
+			}
+		}
+	}
+
+	void drawPollutionMap(Canvas canvas)
+	{
+		int [][] A = city.pollutionMem;
+
+		for (int y = 0; y < A.length; y++) {
+			for (int x = 0; x < A[y].length; x++) {
+				maybeDrawRect(canvas, getOverlayColor(A[y][x]),
+					new Rect(
+						x * 2 * tileSize,
+						y * 2 * tileSize,
+						(x+1) * 2 * tileSize,
+						(y+1) * 2 * tileSize
+					));
+			}
+		}
+	}
+
+	void drawCrimeMap(Canvas canvas)
+	{
+		int [][] A = city.crimeMem;
+
+		for (int y = 0; y < A.length; y++) {
+			for (int x = 0; x < A[y].length; x++) {
+				maybeDrawRect(canvas, getOverlayColor(A[y][x]),
+					new Rect(
+						x * 2 * tileSize,
+						y * 2 * tileSize,
+						(x+1) * 2 * tileSize,
+						(y+1) * 2 * tileSize
+					));
+			}
+		}
+	}
+
+	void drawFireRadius(Canvas canvas)
+	{
+		int [][] A = city.fireRate;
+
+		for (int y = 0; y < A.length; y++) {
+			for (int x = 0; x < A[y].length; x++) {
+				maybeDrawRect(canvas, getOverlayColor(A[y][x]),
+					new Rect(
+						x * 8 * tileSize,
+						y * 8 * tileSize,
+						(x+1) * 8 * tileSize,
+						(y+1) * 8 * tileSize
+					));
+			}
+		}
+	}
+
+	void drawPoliceRadius(Canvas canvas)
+	{
+		int [][] A = city.policeMapEffect;
+
+		for (int y = 0; y < A.length; y++) {
+			for (int x = 0; x < A[y].length; x++) {
+				maybeDrawRect(canvas, getOverlayColor(A[y][x]),
+					new Rect(
+						x * 8 * tileSize,
+						y * 8 * tileSize,
+						(x+1) * 8 * tileSize,
+						(y+1) * 8 * tileSize
+					));
+			}
+		}
+	}
+
 	void maybeDrawRect(Canvas canvas, int argb, Rect rect)
 	{
 		Paint p = new Paint();
@@ -267,6 +367,11 @@ public class MicropolisView extends View
 	static final int VAL_MEDIUM = 0xffff00;
 	static final int VAL_HIGH = 0xff7f00;
 	static final int VAL_VERYHIGH = 0xff0000;
+
+	static final int VAL_PLUS      = 0x007f00;
+	static final int VAL_VERYPLUS  = 0x00e600;
+	static final int VAL_MINUS     = 0xff7f00;
+	static final int VAL_VERYMINUS = 0xffff00;
 
 	int getOverlayColor(int x)
 	{
@@ -285,6 +390,20 @@ public class MicropolisView extends View
 		else {
 			return 0x88000000 | VAL_VERYHIGH;
 		}
+	}
+
+	int getOverlayColor_rog(int x)
+	{
+		if (x > 100)
+			return 0xcc000000 | VAL_VERYPLUS;
+		else if (x > 20)
+			return 0xcc000000 | VAL_PLUS;
+		else if (x < -100)
+			return 0xcc000000 | VAL_VERYMINUS;
+		else if (x < -20)
+			return 0xcc000000 | VAL_MINUS;
+		else
+			return 0;
 	}
 
 	void setToolPreview(ToolPreview newPreview)
