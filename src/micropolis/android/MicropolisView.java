@@ -379,16 +379,16 @@ public class MicropolisView extends View
 			return 0;
 		}
 		else if (x < 100) {
-			return 0x88000000 | VAL_LOW;
+			return 0xcc000000 | VAL_LOW;
 		}
 		else if (x < 150) {
-			return 0x88000000 | VAL_MEDIUM;
+			return 0xcc000000 | VAL_MEDIUM;
 		}
 		else if (x < 200) {
-			return 0x88000000 | VAL_HIGH;
+			return 0xcc000000 | VAL_HIGH;
 		}
 		else {
-			return 0x88000000 | VAL_VERYHIGH;
+			return 0xcc000000 | VAL_VERYHIGH;
 		}
 	}
 
