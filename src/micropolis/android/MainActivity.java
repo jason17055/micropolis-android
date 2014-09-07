@@ -147,33 +147,43 @@ public class MainActivity extends Activity
 			doBudget();
 			return true;
 		case R.id.menu_no_overlay:
+			item.setChecked(true);
 			doMapOverlay(MapState.ALL);
 			return true;
 		case R.id.menu_popden_overlay:
+			item.setChecked(true);
 			doMapOverlay(MapState.POPDEN_OVERLAY);
 			return true;
 		case R.id.menu_growthrate_overlay:
+			item.setChecked(true);
 			doMapOverlay(MapState.GROWTHRATE_OVERLAY);
 			return true;
 		case R.id.menu_landvalue_overlay:
+			item.setChecked(true);
 			doMapOverlay(MapState.LANDVALUE_OVERLAY);
 			return true;
 		case R.id.menu_crime_overlay:
+			item.setChecked(true);
 			doMapOverlay(MapState.CRIME_OVERLAY);
 			return true;
 		case R.id.menu_pollute_overlay:
+			item.setChecked(true);
 			doMapOverlay(MapState.POLLUTE_OVERLAY);
 			return true;
 		case R.id.menu_traffic_overlay:
+			item.setChecked(true);
 			doMapOverlay(MapState.TRAFFIC_OVERLAY);
 			return true;
 		case R.id.menu_power_overlay:
+			item.setChecked(true);
 			doMapOverlay(MapState.POWER_OVERLAY);
 			return true;
 		case R.id.menu_fire_overlay:
+			item.setChecked(true);
 			doMapOverlay(MapState.FIRE_OVERLAY);
 			return true;
 		case R.id.menu_police_overlay:
+			item.setChecked(true);
 			doMapOverlay(MapState.POLICE_OVERLAY);
 			return true;
 		default:

@@ -16,7 +16,7 @@
 		android:showAsAction="never">
 	<menu>
 	<group android:checkableBehavior="single">
-		<item android:id="@+id/menu_no_overlay"         android:title="@string/menu_no_overlay"/>
+		<item android:id="@+id/menu_no_overlay"         android:title="@string/menu_no_overlay" android:checked="true" />
 		<item android:id="@+id/menu_popden_overlay"     android:title="@string/menu_popden_overlay"/>
 		<item android:id="@+id/menu_growthrate_overlay" android:title="@string/menu_growthrate_overlay"/>
 		<item android:id="@+id/menu_landvalue_overlay"  android:title="@string/menu_landvalue_overlay"/>
