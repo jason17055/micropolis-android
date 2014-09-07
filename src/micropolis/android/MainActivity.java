@@ -30,6 +30,7 @@ public class MainActivity extends Activity
 		MicropolisView.InspectHelper
 {
 	Micropolis city;
+	Menu menu;
 
 	static final String ST_MICROPOLIS = "micropolis.city";
 	/** Used in Intent. */
@@ -123,16 +124,66 @@ public class MainActivity extends Activity
 				MicropolisTool.valueOf(tmp)
 				);
 		}
+
+		tmp = b.getString("overlay");
+		if (tmp != null) {
+			MapState ms = MapState.valueOf(tmp);
+			doMapOverlay(ms);
+			setOverlayCheckmark();
+		}
 	}
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		this.menu = menu;
+		setOverlayCheckmark();
+		return true;
+	}
     
+	void setOverlayCheckmark()
+	{
+		if (this.menu == null) return;
+
+		MicropolisView view = getMicropolisView();
+		if (view == null) return;
+
+		switch (view.currentOverlay) {
+		case ALL:
+			menu.findItem(R.id.menu_no_overlay).setChecked(true);
+			break;
+		case POPDEN_OVERLAY:
+			menu.findItem(R.id.menu_popden_overlay).setChecked(true);
+			break;
+		case GROWTHRATE_OVERLAY:
+			menu.findItem(R.id.menu_growthrate_overlay).setChecked(true);
+			break;
+		case LANDVALUE_OVERLAY:
+			menu.findItem(R.id.menu_landvalue_overlay).setChecked(true);
+			break;
+		case CRIME_OVERLAY:
+			menu.findItem(R.id.menu_crime_overlay).setChecked(true);
+			break;
+		case POLLUTE_OVERLAY:
+			menu.findItem(R.id.menu_pollute_overlay).setChecked(true);
+			break;
+		case TRAFFIC_OVERLAY:
+			menu.findItem(R.id.menu_traffic_overlay).setChecked(true);
+			break;
+		case POWER_OVERLAY:
+			menu.findItem(R.id.menu_power_overlay).setChecked(true);
+			break;
+		case FIRE_OVERLAY:
+			menu.findItem(R.id.menu_fire_overlay).setChecked(true);
+			break;
+		case POLICE_OVERLAY:
+			menu.findItem(R.id.menu_police_overlay).setChecked(true);
+			break;
+		}
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
@@ -429,6 +480,9 @@ public class MainActivity extends Activity
 		if (currentTool != null) {
 			st.putString("currentTool", currentTool.name());
 		}
+
+		MapState ms = getMicropolisView().currentOverlay;
+		st.putString("overlay", ms.name());
 	}
 
 	@Override
